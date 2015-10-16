@@ -51,14 +51,11 @@ class Config(object):
     def _get_file(self, f):
         """Get a config file if possible"""
         if os.path.isabs(f):
-            print ('absolute found - ', f)
             return f
         else:
             for d in Config._dirs:
                 _f = os.path.join(d, f)
-                print ('looking for - ', _f)
                 if os.path.isfile(_f):
-                    print ('relative found - ', _f)
                     return _f
             raise FiggyPyError("could not find configuration file {} in dirs {}"
                                .format(f, Config._dirs))
