@@ -1,16 +1,19 @@
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import logging
-import io
 import os
 import seria
 import yaml
 
 logger = logging.getLogger('figgypy')
-logger.addHandler(logging.NullHandler())
+if len(logger.handlers) == 0:
+    logger.addHandler(logging.NullHandler())
 
 gpg_loaded = False
 try:
     import gnupg
-
     gpg_loaded = True
 except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
@@ -88,14 +91,14 @@ class Config(object):
             try:
                 packed = self.gpg.decrypt(config['_secrets'])
                 if packed.ok:
-
-                    secret_stream = io.StringIO(unicode(packed.data))
+                    secret_stream = StringIO()
+                    secret_stream.write(packed.data.decode("utf-8"))
                     _seria_in = seria.load(secret_stream)
                     config['secrets'] = yaml.load(_seria_in.dump('yaml'))
                 else:
                     logger.error("gpg error unpacking secrets %s" % packed.stderr)
             except Exception as e:
-                logger.error("error unpacking secrets %s" % e)
+                    logger.error("error unpacking secrets %s" % e)
         return config
 
     def _get_file(self, f):

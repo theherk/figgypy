@@ -96,6 +96,21 @@ log:
 
 This yields object `cfg` with attributes `db` and `log`, each of which are dictionaries. This is the exact same behaviour as json, which makes sense given the close relationship of yaml and json.
 
+Secrets
+--------
+It is possible to use gpg to store PGP encrypted secrets in a config file.
+
+######Environment Variables
+
+`FIGGY_GPG_BINARY` For specifying where GPG is, defaults to `gpg`
+
+`FIGGY_GPG_HOME` the GPG home, basically where to look for the keyring.  defaults to ~/.gnupg/
+
+####To encrypt a _secret section 
+
+    echo "{\"test\":\"shh\"}"  | gpg --encrypt --armor -r KEY_ID | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g'
+and then add that line as a property called "_secrets" in your config.  When you load the config, if it was successfully decoded, these values with be avaliable in a dict() on the property `secrets`
+
 Thanks
 ------
 
