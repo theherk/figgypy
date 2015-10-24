@@ -10,6 +10,7 @@ logger.addHandler(logging.NullHandler())
 gpg_loaded = False
 try:
     import gnupg
+
     gpg_loaded = True
 except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
@@ -69,18 +70,17 @@ class Config(object):
                 if 'GPG_BINARY' in os.environ:
                     gpgbinary = os.environ['GPG_BINARY']
                 self.gpg = gnupg.GPG(gpgbinary=gpgbinary)
-            except WindowsError as e:
+            except Exception as e:
                 if len(e.args) == 2:
                     if e.args[1] == 'The system cannot find the file specified':
                         if not 'GPG_BINARY' in os.environ:
-                            logger.error("cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" %gpgbinary)
+                            logger.error(
+                                "cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" % gpgbinary)
                         else:
-                            logger.error("cannot find gpg executable, path=%s" %gpgbinary)
+                            logger.error("cannot find gpg executable, path=%s" % gpgbinary)
                 else:
-                    logger.error("cannot setup gpg, %s" %e)
+                    logger.error("cannot setup gpg, %s" % e)
                 return
-            except Exception as e:
-                logger.error("cannot setup gpg, %s" %e)
 
             try:
                 packed = self.gpg.decrypt(config['_secrets'])
@@ -91,7 +91,7 @@ class Config(object):
                 else:
                     logger.error("gpg error unpacking secrets %s" % packed.stderr)
             except Exception as e:
-                logger.error("error unpacking secrets %s" % packed.stderr)
+                logger.error("error unpacking secrets %s" % e)
         return config
 
     def _get_file(self, f):
