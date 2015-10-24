@@ -9,6 +9,7 @@ with open('README.md') as f:
 
 install_requires = [
     'seria',
+    'python-gnupg'
 ]
 
 setup(

@@ -1,12 +1,23 @@
+import logging
+import io
 import os
 import seria
 import yaml
+
+gpg_loaded = False
+try:
+    import gnupg
+    gpg_loaded = True
+except ImportError:
+    logging.info('could not load gnupg, will be unable to unpack secrets')
+    pass
+logger = logging.getLogger('figgypy')
 
 
 class FiggyPyError(Exception):
     pass
 
-    
+
 class Config(object):
     """Configuration object
 
@@ -45,8 +56,34 @@ class Config(object):
             raise FiggyPyError("could not open configuration file")
 
         _cfg = yaml.load(_y)
+        self._post_load_process(_cfg)
         for k, v in _cfg.items():
             setattr(self, k, v)
+
+    def _post_load_process(self, config):
+        if gpg_loaded and "_secrets" in config:
+            try:
+                gpgbinary = 'gpg'
+                if 'GPG_BINARY' in os.environ:
+                    gpgbinary = os.environ['GPG_BINARY']
+                self.gpg = gnupg.GPG(gpgbinary=gpgbinary)
+            except FileNotFoundError as e:
+                logging.error("%s try setting GPG_BINARY env variable" % e.args[0])
+                return
+                pass
+
+            try:
+                packed = self.gpg.decrypt(config["_secrets"])
+                if packed.ok:
+                    secret_stream = io.StringIO(str(packed))
+                    _seria_in = seria.load(secret_stream)
+                    config['secrets'] = yaml.load(_seria_in.dump('yaml'))
+                else:
+                    logging.error("gpg error unpacking secrets %s" % packed.stderr)
+            except Exception as e:
+                logging.error("error unpacking secrets %s" % packed.stderr)
+                pass
+        return config
 
     def _get_file(self, f):
         """Get a config file if possible"""
