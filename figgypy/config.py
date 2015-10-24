@@ -65,11 +65,14 @@ class Config(object):
 
     def _post_load_process(self, config):
         if gpg_loaded and "_secrets" in config:
-            gpgbinary = 'gpg'
+            gpgbinary='gpg'
+            gnupghome=None
             try:
-                if 'GPG_BINARY' in os.environ:
-                    gpgbinary = os.environ['GPG_BINARY']
-                self.gpg = gnupg.GPG(gpgbinary=gpgbinary)
+                if 'FIGGY_GPG_BINARY' in os.environ:
+                    gpgbinary = os.environ['FIGGY_GPG_BINARY']
+                if 'FIGGY_GPG_HOME' in os.environ:
+                    gnupghome = os.environ['FIGGY_GPG_HOME']
+                self.gpg = gnupg.GPG(gpgbinary=gpgbinary,gnupghome=gnupghome)
             except Exception as e:
                 if len(e.args) == 2:
                     if e.args[1] == 'The system cannot find the file specified':
@@ -85,7 +88,8 @@ class Config(object):
             try:
                 packed = self.gpg.decrypt(config['_secrets'])
                 if packed.ok:
-                    secret_stream = io.StringIO(str(packed))
+
+                    secret_stream = io.StringIO(unicode(packed.data))
                     _seria_in = seria.load(secret_stream)
                     config['secrets'] = yaml.load(_seria_in.dump('yaml'))
                 else:
