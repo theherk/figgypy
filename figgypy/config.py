@@ -4,6 +4,9 @@ import os
 import seria
 import yaml
 
+logger = logging.getLogger('figgypy')
+logger.addHandler(logging.NullHandler())
+
 gpg_loaded = False
 try:
     import gnupg
@@ -11,7 +14,6 @@ try:
 except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
     pass
-logger = logging.getLogger('figgypy')
 
 
 class FiggyPyError(Exception):
@@ -62,27 +64,34 @@ class Config(object):
 
     def _post_load_process(self, config):
         if gpg_loaded and "_secrets" in config:
+            gpgbinary = 'gpg'
             try:
-                gpgbinary = 'gpg'
                 if 'GPG_BINARY' in os.environ:
                     gpgbinary = os.environ['GPG_BINARY']
                 self.gpg = gnupg.GPG(gpgbinary=gpgbinary)
-            except FileNotFoundError as e:
-                logging.error("%s try setting GPG_BINARY env variable" % e.args[0])
+            except WindowsError as e:
+                if len(e.args) == 2:
+                    if e.args[1] == 'The system cannot find the file specified':
+                        if not 'GPG_BINARY' in os.environ:
+                            logger.error("cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" %gpgbinary)
+                        else:
+                            logger.error("cannot find gpg executable, path=%s" %gpgbinary)
+                else:
+                    logger.error("cannot setup gpg, %s" %e)
                 return
-                pass
+            except Exception as e:
+                logger.error("cannot setup gpg, %s" %e)
 
             try:
-                packed = self.gpg.decrypt(config["_secrets"])
+                packed = self.gpg.decrypt(config['_secrets'])
                 if packed.ok:
                     secret_stream = io.StringIO(str(packed))
                     _seria_in = seria.load(secret_stream)
                     config['secrets'] = yaml.load(_seria_in.dump('yaml'))
                 else:
-                    logging.error("gpg error unpacking secrets %s" % packed.stderr)
+                    logger.error("gpg error unpacking secrets %s" % packed.stderr)
             except Exception as e:
-                logging.error("error unpacking secrets %s" % packed.stderr)
-                pass
+                logger.error("error unpacking secrets %s" % packed.stderr)
         return config
 
     def _get_file(self, f):
