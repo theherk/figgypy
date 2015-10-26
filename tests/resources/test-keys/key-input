@@ -1,0 +1,12 @@
+Key-Type: RSA
+Key-Length: 4096
+Name-Real: test-key
+Name-Email: test-key@figgypy
+Expire-Date: 0
+%pubring foo.pub
+%secring foo.sec
+%no-protection
+%commit
+#|  %pubring foo.gpg
+#|  %secring sec.gpg
+#|  %commit

@@ -1,12 +1,29 @@
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+import logging
 import os
 import seria
 import yaml
+
+logger = logging.getLogger('figgypy')
+if len(logger.handlers) == 0:
+    logger.addHandler(logging.NullHandler())
+
+gpg_loaded = False
+try:
+    import gnupg
+    gpg_loaded = True
+except ImportError:
+    logging.info('could not load gnupg, will be unable to unpack secrets')
+    pass
 
 
 class FiggyPyError(Exception):
     pass
 
-    
+
 class Config(object):
     """Configuration object
 
@@ -45,8 +62,59 @@ class Config(object):
             raise FiggyPyError("could not open configuration file")
 
         _cfg = yaml.load(_y)
+        self._post_load_process(_cfg)
         for k, v in _cfg.items():
             setattr(self, k, v)
+
+    def _decrypt_and_update(self, obj):
+        """Decrypt and update configuration.
+
+        Do this only from _post_load_process so that we can verify gpg
+        is ready. If we did them in the same function we would end up
+        calling the gpg checks several times, potentially, since we are
+        calling this recursively.
+        """
+        if isinstance(obj, list):
+            res_v = []
+            for item in obj:
+                res_v.append(self._decrypt_and_update(item))
+            return res_v
+        elif isinstance(obj, dict):
+            for k, v in obj.items():
+                obj[k] = self._decrypt_and_update(v)
+        else:
+            if 'BEGIN PGP' in obj:
+                try:
+                    decrypted = self.gpg.decrypt(obj)
+                    if decrypted.ok:
+                        obj = decrypted.data.decode('utf-8')
+                    else:
+                        logger.error("gpg error unpacking secrets %s" % decrypted.stderr)
+                except Exception as e:
+                        logger.error("error unpacking secrets %s" % e)
+        return obj
+
+    def _post_load_process(self, cfg):
+        if gpg_loaded:
+            gpgbinary='gpg'
+            gnupghome=None
+            try:
+                if 'FIGGY_GPG_BINARY' in os.environ:
+                    gpgbinary = os.environ['FIGGY_GPG_BINARY']
+                if 'FIGGY_GPG_HOME' in os.environ:
+                    gnupghome = os.environ['FIGGY_GPG_HOME']
+                self.gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
+            except Exception as e:
+                if len(e.args) == 2:
+                    if e.args[1] == 'The system cannot find the file specified':
+                        if not 'GPG_BINARY' in os.environ:
+                            logger.error(
+                                "cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" % gpgbinary)
+                        else:
+                            logger.error("cannot find gpg executable, path=%s" % gpgbinary)
+                else:
+                    logger.error("cannot setup gpg, %s" % e)
+        return self._decrypt_and_update(cfg)
 
     def _get_file(self, f):
         """Get a config file if possible"""
