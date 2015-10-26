@@ -1,22 +1,18 @@
 language: python
-
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-
+- '3.2'
+- '3.3'
+- '3.4'
+- '3.5'
 install:
-  - pip install .
-
+- pip install .
 script:
-  - python -m unittest tests.test_config
-
+- python -m unittest tests.test_config
 deploy:
   provider: pypi
   user: theherk
   password:
-    secure: AZ+JiMEpPPJdY79s01WW8FJPDBEDWZeqdZhew4w9/dHh8IBEVNvhOME1lyB6F2R+WbXO2y8phiNF0SsjP4/kIjDgiJHP4vr2RdgXExwsn5Fea9u6dsVvNm446mueXsf6gPSpPXFZ8Pho9fROGVKcztCGlMgcYM56gvLjpgkWp/VqpV7tV3kKyxABhcJJeXpaumId+IWOLshaB4hLQvb7tWLl1RLFYnY71WUlm7axlgRg6NtqJAzT4dpoijSqzowSWCexZ/c/SVRW9CS1tv/oYk4o9llqWgeenLozyveCqZv52IbUlS/Oj02jH+9aeugjfMlBAuBk5tGGL4qSRm1fZ1xH/IpS1xCzoPsjKcxOqu7wTdbipABo6SAs4cf3tJ88vdwam5Db7nRd/Oi8UOF3AdUG1bOOOpZmkDGmOhJecqED9RtUlbTnClr/+cBosSTMEbJGnRqLnN2X3G1akEHx/yHKbABcYsAiii7pN/4Mqc96gdRcL+ALo7lAcoKA+Me2gVq+fZulQnmPn4VDdT0CK8gttBS+9L443rFOtuYeh0rkToPD6WkfhQjBTUx/mzROiDVsmO4LuBIzaTXw/ydsZ+wua9K6cd9eN6JF21er5HTqXtWcjO3ysGIbBvnhuMFcKZQ4hHtlCeqjip+mq/oYrrUdwBaQ5oGX7G9Dn7gTLl8=
+    secure: GPznSzUsXqT+QFU6KYnf3X+c3EjnZCmqbBFFhArC+kVhKo+JQ24SAs9Q7nXHXH8IQyHGqqsge9y8MYzmmgcLT5jzrkontxluk+j0EomuZZliUzeA2PV3+dfBKrq3RbLT0a0Tqjgf3+92X34rwO+rqLO5KSE3wua6blTvqFGUCtI6+ySc1UzGI0xm6EcHfH2n54ymhumX3i0QQCwCCayKpmtFuh4yGBm73yYCIAd/VVOWKZPJnfz1ru8R2Jw/z4dnb1L638RngRK6kL9DmUQrFsb7SaUAYFoMEhcly3UAOq8f+W5RmNs511p5tml3byEIiQThzM0JTZfnKWPkosdVFZQa/9Iuml1wIHVsR33VY705pvELE+IVh8dpL+zOAz3vRAi8yZHPQQ2qGqVGJ8IHstbM58L6vt1fYW/rtu+lqciNN0fb63tdC4NMqUkmQbK0pTLjyOnRV1HhDT5lgLnisyEL8kQjd7ehpzyr44QWBf4bfCuvRjAt5pG8R2/7+hRSPBje/CYNFiLTIJ41Z2/GMyDrsObOuh/csVClzPHimv/PlqTA5/AXSgVAZf2DReDPvtrNDDvMrIT7bSEc1Dokorp2uDvhRpqD62CEf7eWaIZWbSzTpZxGT5mIUJYfud0/nx/bRzk60ch7cLBsbOQ9uQu7P1IgXc4hsFlpfqPuT3s=
   on:
     tags: true
     branch: master
