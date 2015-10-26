@@ -66,8 +66,36 @@ class Config(object):
         for k, v in _cfg.items():
             setattr(self, k, v)
 
-    def _post_load_process(self, config):
-        if gpg_loaded and "_secrets" in config:
+    def _decrypt_and_update(self, obj):
+        """Decrypt and update configuration.
+
+        Do this only from _post_load_process so that we can verify gpg
+        is ready. If we did them in the same function we would end up
+        calling the gpg checks several times, potentially, since we are
+        calling this recursively.
+        """
+        if isinstance(obj, list):
+            res_v = []
+            for item in obj:
+                res_v.append(self._decrypt_and_update(item))
+            return res_v
+        elif isinstance(obj, dict):
+            for k, v in obj.items():
+                obj[k] = self._decrypt_and_update(v)
+        else:
+            if 'BEGIN PGP' in obj:
+                try:
+                    decrypted = self.gpg.decrypt(obj)
+                    if decrypted.ok:
+                        obj = decrypted.data.decode('utf-8')
+                    else:
+                        logger.error("gpg error unpacking secrets %s" % decrypted.stderr)
+                except Exception as e:
+                        logger.error("error unpacking secrets %s" % e)
+        return obj
+
+    def _post_load_process(self, cfg):
+        if gpg_loaded:
             gpgbinary='gpg'
             gnupghome=None
             try:
@@ -75,7 +103,7 @@ class Config(object):
                     gpgbinary = os.environ['FIGGY_GPG_BINARY']
                 if 'FIGGY_GPG_HOME' in os.environ:
                     gnupghome = os.environ['FIGGY_GPG_HOME']
-                self.gpg = gnupg.GPG(gpgbinary=gpgbinary,gnupghome=gnupghome)
+                self.gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
             except Exception as e:
                 if len(e.args) == 2:
                     if e.args[1] == 'The system cannot find the file specified':
@@ -86,20 +114,7 @@ class Config(object):
                             logger.error("cannot find gpg executable, path=%s" % gpgbinary)
                 else:
                     logger.error("cannot setup gpg, %s" % e)
-                return
-
-            try:
-                packed = self.gpg.decrypt(config['_secrets'])
-                if packed.ok:
-                    secret_stream = StringIO()
-                    secret_stream.write(packed.data.decode("utf-8"))
-                    _seria_in = seria.load(secret_stream)
-                    config['secrets'] = yaml.load(_seria_in.dump('yaml'))
-                else:
-                    logger.error("gpg error unpacking secrets %s" % packed.stderr)
-            except Exception as e:
-                    logger.error("error unpacking secrets %s" % e)
-        return config
+        return self._decrypt_and_update(cfg)
 
     def _get_file(self, f):
         """Get a config file if possible"""
