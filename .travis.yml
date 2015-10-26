@@ -1,0 +1,22 @@
+language: python
+
+python:
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+
+install:
+  - pip install .
+
+script:
+  - python -m unittest tests.test_config
+
+deploy:
+  provider: pypi
+  user: theherk
+  password:
+    secure: AZ+JiMEpPPJdY79s01WW8FJPDBEDWZeqdZhew4w9/dHh8IBEVNvhOME1lyB6F2R+WbXO2y8phiNF0SsjP4/kIjDgiJHP4vr2RdgXExwsn5Fea9u6dsVvNm446mueXsf6gPSpPXFZ8Pho9fROGVKcztCGlMgcYM56gvLjpgkWp/VqpV7tV3kKyxABhcJJeXpaumId+IWOLshaB4hLQvb7tWLl1RLFYnY71WUlm7axlgRg6NtqJAzT4dpoijSqzowSWCexZ/c/SVRW9CS1tv/oYk4o9llqWgeenLozyveCqZv52IbUlS/Oj02jH+9aeugjfMlBAuBk5tGGL4qSRm1fZ1xH/IpS1xCzoPsjKcxOqu7wTdbipABo6SAs4cf3tJ88vdwam5Db7nRd/Oi8UOF3AdUG1bOOOpZmkDGmOhJecqED9RtUlbTnClr/+cBosSTMEbJGnRqLnN2X3G1akEHx/yHKbABcYsAiii7pN/4Mqc96gdRcL+ALo7lAcoKA+Me2gVq+fZulQnmPn4VDdT0CK8gttBS+9L443rFOtuYeh0rkToPD6WkfhQjBTUx/mzROiDVsmO4LuBIzaTXw/ydsZ+wua9K6cd9eN6JF21er5HTqXtWcjO3ysGIbBvnhuMFcKZQ4hHtlCeqjip+mq/oYrrUdwBaQ5oGX7G9Dn7gTLl8=
+  on:
+    tags: true
+    branch: master
