@@ -14,13 +14,13 @@ install_requires = [
 
 setup(
     name='figgypy',
-    version='0.1.2',
+    version='0.1.3',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
     author='Herkermer Sherwood',
     author_email='theherk@gmail.com',
     url='https://github.com/theherk/figgypy',
-    download_url='https://github.com/theherk/figgypy/archive/0.1.2.zip',
+    download_url='https://github.com/theherk/figgypy/archive/0.1.3.zip',
     packages=find_packages(),
     platforms=['all'],
     license='MIT',
