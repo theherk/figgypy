@@ -1,6 +1,8 @@
 figgypy
 =======
 
+[![Build Status](https://travis-ci.org/theherk/figgypy.svg)](https://travis-ci.org/theherk/figgypy)
+
 A simple configuration parser.
 
 Installation
