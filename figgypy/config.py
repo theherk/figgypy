@@ -104,17 +104,20 @@ class Config(object):
                 if 'FIGGY_GPG_HOME' in os.environ:
                     gnupghome = os.environ['FIGGY_GPG_HOME']
                 self.gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
-            except Exception as e:
+                return self._decrypt_and_update(cfg)
+            except OSError as e:
                 if len(e.args) == 2:
-                    if e.args[1] == 'The system cannot find the file specified':
-                        if not 'GPG_BINARY' in os.environ:
+                    if (e.args[1] == 'The system cannot find the file specified'
+                        or 'No such file or directory' in e.args[1]):
+                        # frobnicate
+                        if not 'FIGGY_GPG_BINARY' in os.environ:
                             logger.error(
                                 "cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" % gpgbinary)
                         else:
                             logger.error("cannot find gpg executable, path=%s" % gpgbinary)
                 else:
                     logger.error("cannot setup gpg, %s" % e)
-        return self._decrypt_and_update(cfg)
+        return cfg
 
     def _get_file(self, f):
         """Get a config file if possible"""
