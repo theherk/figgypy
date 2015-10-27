@@ -10,6 +10,8 @@ Installation
 
     pip install figgypy
 
+_note_ - figgypy requires python-gnupg and gnupg to decode secrets. It will install python-gnupg at install time. If you don't have gnupg on your system by default (it probably is) you'll need to install it. If either of these two are missing, the configuration tool will still work, it just won't decrypt secrets.
+
 Usage
 -----
 
