@@ -5,7 +5,7 @@ import sys
 import os
 
 class TestConfig(unittest.TestCase):
-    def test_config_load(self):
+    def test_config_load_with_gpg(self):
         os.environ['FIGGY_GPG_HOME']='tests/resources/test-keys'
         c = figgypy.config.Config('tests/resources/test-config.yaml')
         self.assertEqual(c.db['host'], 'db.heck.ya')
