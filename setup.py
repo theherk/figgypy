@@ -12,7 +12,6 @@ install_requires = [
     'python-gnupg'
 ]
 
-#
 setup(
     name='figgypy',
     version='0.1.4',
