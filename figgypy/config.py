@@ -83,15 +83,18 @@ class Config(object):
             for k, v in obj.items():
                 obj[k] = self._decrypt_and_update(v)
         else:
-            if 'BEGIN PGP' in obj:
-                try:
-                    decrypted = self.gpg.decrypt(obj)
-                    if decrypted.ok:
-                        obj = decrypted.data.decode('utf-8')
-                    else:
-                        logger.error("gpg error unpacking secrets %s" % decrypted.stderr)
-                except Exception as e:
-                        logger.error("error unpacking secrets %s" % e)
+            try:
+                if 'BEGIN PGP' in obj:
+                    try:
+                        decrypted = self.gpg.decrypt(obj)
+                        if decrypted.ok:
+                            obj = decrypted.data.decode('utf-8')
+                        else:
+                            logger.error("gpg error unpacking secrets %s" % decrypted.stderr)
+                    except Exception as e:
+                            logger.error("error unpacking secrets %s" % e)
+            except TypeError as e:
+                logger.info('Pass on decryption. Only decrypt strings')
         return obj
 
     def _post_load_process(self, cfg):
