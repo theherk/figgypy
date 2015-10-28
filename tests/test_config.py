@@ -5,6 +5,11 @@ import sys
 import os
 
 class TestConfig(unittest.TestCase):
+    def test_config_pass_on_int(self):
+        os.environ['FIGGY_GPG_HOME']='tests/resources/test-keys'
+        c = figgypy.config.Config('tests/resources/test-config.yaml')
+        self.assertEqual(c.number, 1)
+
     def test_config_load_with_gpg(self):
         os.environ['FIGGY_GPG_HOME']='tests/resources/test-keys'
         c = figgypy.config.Config('tests/resources/test-config.yaml')
@@ -32,10 +37,10 @@ class TestConfig(unittest.TestCase):
             'SAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t\n'
             '5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==\n'
             '=QuDe\n'
-            '-----END PGP MESSAGE-----'
+            '-----END PGP MESSAGE-----\n'
         )
         self.assertEqual(c.db['host'], 'db.heck.ya')
-        self.assertEqual(c.db['pass'], encrypted_password)
+        self.assertEqual(c.db['pass'].rstrip('\n'), encrypted_password.rstrip('\n'))
 
 if __name__ == '__main__':
     unittest.main()
