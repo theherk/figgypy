@@ -20,7 +20,7 @@ except ImportError:
     pass
 
 
-class FiggyPyError(Exception):
+class FiggypyError(Exception):
     pass
 
 
@@ -59,7 +59,7 @@ class Config(object):
                 except Exception as e:
                     raise
         except IOError:
-            raise FiggyPyError("could not open configuration file")
+            raise FiggypyError("could not open configuration file")
 
         _cfg = yaml.load(_y)
         self._post_load_process(_cfg)
@@ -86,7 +86,7 @@ class Config(object):
             try:
                 if 'BEGIN PGP' in obj:
                     try:
-                        decrypted = self.gpg.decrypt(obj)
+                        decrypted = self._gpg.decrypt(obj)
                         if decrypted.ok:
                             obj = decrypted.data.decode('utf-8')
                         else:
@@ -106,7 +106,7 @@ class Config(object):
                     gpgbinary = os.environ['FIGGY_GPG_BINARY']
                 if 'FIGGY_GPG_HOME' in os.environ:
                     gnupghome = os.environ['FIGGY_GPG_HOME']
-                self.gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
+                self._gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
                 return self._decrypt_and_update(cfg)
             except OSError as e:
                 if len(e.args) == 2:
@@ -131,5 +131,5 @@ class Config(object):
                 _f = os.path.join(d, f)
                 if os.path.isfile(_f):
                     return _f
-            raise FiggyPyError("could not find configuration file {} in dirs {}"
+            raise FiggypyError("could not find configuration file {} in dirs {}"
                                .format(f, Config._dirs))
