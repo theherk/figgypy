@@ -20,7 +20,7 @@ except ImportError:
     pass
 
 
-class FiggyPyError(Exception):
+class FiggypyError(Exception):
     pass
 
 
@@ -59,7 +59,7 @@ class Config(object):
                 except Exception as e:
                     raise
         except IOError:
-            raise FiggyPyError("could not open configuration file")
+            raise FiggypyError("could not open configuration file")
 
         _cfg = yaml.load(_y)
         self._post_load_process(_cfg)
@@ -131,5 +131,5 @@ class Config(object):
                 _f = os.path.join(d, f)
                 if os.path.isfile(_f):
                     return _f
-            raise FiggyPyError("could not find configuration file {} in dirs {}"
+            raise FiggypyError("could not find configuration file {} in dirs {}"
                                .format(f, Config._dirs))
