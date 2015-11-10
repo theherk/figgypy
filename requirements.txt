@@ -1,0 +1,2 @@
+seria>=0.1.4
+python-gnupg>=0.3.0
