@@ -86,7 +86,7 @@ class Config(object):
             try:
                 if 'BEGIN PGP' in obj:
                     try:
-                        decrypted = self.gpg.decrypt(obj)
+                        decrypted = self._gpg.decrypt(obj)
                         if decrypted.ok:
                             obj = decrypted.data.decode('utf-8')
                         else:
@@ -106,7 +106,7 @@ class Config(object):
                     gpgbinary = os.environ['FIGGY_GPG_BINARY']
                 if 'FIGGY_GPG_HOME' in os.environ:
                     gnupghome = os.environ['FIGGY_GPG_HOME']
-                self.gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
+                self._gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
                 return self._decrypt_and_update(cfg)
             except OSError as e:
                 if len(e.args) == 2:
