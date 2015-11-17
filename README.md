@@ -112,7 +112,7 @@ It is possible to use gpg to store PGP encrypted secrets in a config file.
 
 ### To encrypt a value
 
-    echo "Your super secret password" -n | gpg --encrypt --armor -r KEY_ID
+    echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
 
 Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
 
