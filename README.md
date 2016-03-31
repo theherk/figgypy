@@ -1,6 +1,8 @@
 figgypy
 =======
 
+[![Join the chat at https://gitter.im/theherk/figgypy](https://badges.gitter.im/theherk/figgypy.svg)](https://gitter.im/theherk/figgypy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/theherk/figgypy.svg)](https://travis-ci.org/theherk/figgypy)
 
 A simple configuration parser.
