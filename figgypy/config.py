@@ -17,6 +17,17 @@ if len(log.handlers) == 0:
 class Config(object):
     """Configuration object
 
+    Args:
+        f (str): filename
+            see below
+        aws_access_key_id (optional[str]): access key id
+        aws_secret_access_key (optional[str]): secret key
+        region_name (optional[str]): aws region
+
+    Returns:
+        object: configuration object with attribute dictionary for each
+            top level property
+
     Object can be created with a filename only, relative path, or absolute path.
     If only name or relative path is provided, look in this order:
 
