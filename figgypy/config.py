@@ -46,7 +46,11 @@ class Config(object):
         "/etc/"
     ]
 
-    def __init__(self, f):
+    def __init__(self, f, aws_access_key_id=None, aws_secret_access_key=None,
+                 region_name=None):
+        self._aws_credentials = {'aws_access_key_id': aws_access_key_id,
+                                 'aws_secret_access_key': aws_secret_access_key,
+                                 'region_name': region_name}
         self._f = self._get_file(f)
         self._cfg = self._get_cfg(self._f)
 
