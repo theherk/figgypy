@@ -3,14 +3,6 @@ import os
 import seria
 import yaml
 
-gpg_loaded = False
-try:
-    import gnupg
-    gpg_loaded = True
-except ImportError:
-    logging.info('could not load gnupg, will be unable to unpack secrets')
-    pass
-
 from figgypy.decrypt import (
     gpg_decrypt,
     kms_decrypt
