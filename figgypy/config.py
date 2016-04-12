@@ -3,10 +3,6 @@ import os
 import seria
 import yaml
 
-logger = logging.getLogger('figgypy')
-if len(logger.handlers) == 0:
-    logger.addHandler(logging.NullHandler())
-
 gpg_loaded = False
 try:
     import gnupg
@@ -16,6 +12,9 @@ except ImportError:
     pass
 
 
+log = logging.getLogger('figgypy')
+if len(log.handlers) == 0:
+    log.addHandler(logging.NullHandler())
 
 
 class Config(object):
