@@ -16,8 +16,6 @@ except ImportError:
     pass
 
 
-class FiggypyError(Exception):
-    pass
 
 
 class Config(object):
