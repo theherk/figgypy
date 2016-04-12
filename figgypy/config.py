@@ -11,6 +11,11 @@ except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
     pass
 
+from figgypy.decrypt import (
+    gpg_decrypt,
+    kms_decrypt
+)
+from figgypy.exceptions import FiggypyError
 
 log = logging.getLogger('figgypy')
 if len(log.handlers) == 0:
