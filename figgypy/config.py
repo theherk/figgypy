@@ -64,7 +64,7 @@ class Config(object):
         kms_decrypt(cfg, **self._aws_credentials)
 
     def _get_file(self, f):
-        """Get a config file if possible"""
+        """Get a config file if possible."""
         if os.path.isabs(f):
             return f
         else:
