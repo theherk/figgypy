@@ -4,7 +4,7 @@ import logging
 import os
 
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoRegionError
 
 from figgypy.exceptions import FiggypyError
 from figgypy.utils import env_or_default
@@ -174,7 +174,7 @@ def kms_decrypt(cfg, aws_config=None):
         return obj
     try:
         aws = boto3.session.Session(**aws_config)
-    except botocore.exceptions.NoRegionError:
+    except NoRegionError:
         log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
     client = aws.client('kms')
     return decrypt(cfg)
