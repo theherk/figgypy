@@ -9,14 +9,14 @@ import yaml
 
 from figgypy import utils
 
-gpg_loaded = False
 log = logging.getLogger('figgypy')
 if len(log.handlers) == 0:
     log.addHandler(logging.NullHandler())
 
+GPG_IMPORTED = False
 try:
     import gnupg
-    gpg_loaded = True
+    GPG_IMPORTED = True
 except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
     pass
@@ -103,6 +103,7 @@ class Config(object):
         if gpg_loaded:
             gpgbinary='gpg'
             gnupghome=None
+        if GPG_IMPORTED:
             try:
                 if 'FIGGY_GPG_BINARY' in os.environ:
                     gpgbinary = os.environ['FIGGY_GPG_BINARY']
