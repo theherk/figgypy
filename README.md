@@ -1,8 +1,7 @@
 figgypy
 =======
 
-[![Join the chat at https://gitter.im/theherk/figgypy](https://badges.gitter.im/theherk/figgypy.svg)](https://gitter.im/theherk/figgypy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Chat on Gitter](https://badges.gitter.im/theherk/figgypy.svg)](https://gitter.im/theherk/figgypy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/theherk/figgypy.svg)](https://travis-ci.org/theherk/figgypy)
 
 A simple configuration parser.
@@ -108,9 +107,19 @@ It is possible to use gpg to store PGP encrypted secrets in a config file.
 
 ### Environment Variables
 
-`FIGGY_GPG_BINARY` For specifying where GPG is, defaults to `gpg`
++ `FIGGYPY_GPG_BINARY` For specifying where GPG is. Defaults to `gpg`.
++ `FIGGYPY_GPG_HOMEDIR` The GPG home. Basically where to look for the keyring. Defaults to `~/.gnupg/`.
++ `FIGGYPY_GPG_KEYRING` The file that houses the keys. Defaults to `pubring.gpg`; may need to be `pubring.kbx`.
 
-`FIGGY_GPG_HOME` the GPG home, basically where to look for the keyring.  defaults to ~/.gnupg/
+### Passed in parameters
+
+These can also be passed in as arguments when initializing.
+
+```python
+gpg_config = {'homedir': 'noplace/like/home',
+              'keyring': 'pubring.kbx'}
+cfg = figgypy.Config('config.yaml', gpg_config=gpg_config)
+```
 
 ### To encrypt a value
 

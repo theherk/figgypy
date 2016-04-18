@@ -4,10 +4,15 @@ from setuptools import setup, find_packages
 import sys
 
 
-with open('README.md') as f:
-    readme = f.read()
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    with open('README.md') as f:
+        readme = f.read()
 
 install_requires = [
+    'gnupg>=2.0.2',
     'seria',
     'python-gnupg'
 ]
@@ -25,6 +30,8 @@ setup(
     platforms=['all'],
     license='MIT',
     install_requires=install_requires,
+    setup_requires=['pytest-runner',],
+    tests_require=['pytest'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: Other/Proprietary License',
