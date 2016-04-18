@@ -1,18 +1,17 @@
 language: python
 python:
-- '3.2'
 - '3.3'
 - '3.4'
 - '3.5'
 install:
 - pip install .
 script:
-- python -m unittest tests.test_config
-deploy:
-  provider: pypi
-  user: theherk
-  password:
-    secure: uAZwPnFCEO+CBux2eik7Dmb7NkBHqkDv3YwdHhY+t3Wu5LJlbf27sEzRWngp7KlJ3N7397Fn3Ow2CM0ppfB1Xj0ZCUNjJfgPaz15DA0ssg9348wMyVqzuKX4DnjN0GgeGU/8upEgX2HDAl640nCg6ogf7PBiq4TXgocUGjqoHmHo6N/Ppvk2c6QaPfq1iu5znUPwv9xYaXer8FV8XJ7NbEYW/YpnGLNeDFGLTE0/cQD4BTwRYNaKDUkoGQ8ijr2mXNffrcPFh5BwziGXFz2b7v0hTEVYjnkKIZpyQ27mOMcc/O1hC8vkuEfOjZAiBVb8J6NxX5h+fB3VvBQ/xsMvPs3FnVFOvb7nRWZv9tff6Il+sbRJdfZp/zc4vWQ08ALXKTtyoK6pLJJUSkR3QJM3/IPiSp6hw53udrB/i23yphDwUq3B9/I1EhBiddQhEnRzokXTBZMLxq23OkrUAP1YjHMMOIgf1y2DK9NIp6e8fcNhdoelWWpl7sC/T9iX8/2hj7ZVi+JrieJqh1pwg+yzt7OfTmgagWx7gbTzQI/SUFbB9YfkAIUyqK/JVYCv9KKa3mUBoZZfJn4RdLr/5u/uMsB8KGhFvkGkauKv1EW5ZzA84zdlnHrO9hOGhNzhmDc68zkuYp5x+1kQ1Kn34La4j5uMUqhv0s5nKpwAV8AM/vI=
-  on:
-    tags: true
-    branch: master
+- python setup.py test
+# deploy:
+#   provider: pypi
+#   user: theherk
+#   password:
+#     secure: uAZwPnFCEO+CBux2eik7Dmb7NkBHqkDv3YwdHhY+t3Wu5LJlbf27sEzRWngp7KlJ3N7397Fn3Ow2CM0ppfB1Xj0ZCUNjJfgPaz15DA0ssg9348wMyVqzuKX4DnjN0GgeGU/8upEgX2HDAl640nCg6ogf7PBiq4TXgocUGjqoHmHo6N/Ppvk2c6QaPfq1iu5znUPwv9xYaXer8FV8XJ7NbEYW/YpnGLNeDFGLTE0/cQD4BTwRYNaKDUkoGQ8ijr2mXNffrcPFh5BwziGXFz2b7v0hTEVYjnkKIZpyQ27mOMcc/O1hC8vkuEfOjZAiBVb8J6NxX5h+fB3VvBQ/xsMvPs3FnVFOvb7nRWZv9tff6Il+sbRJdfZp/zc4vWQ08ALXKTtyoK6pLJJUSkR3QJM3/IPiSp6hw53udrB/i23yphDwUq3B9/I1EhBiddQhEnRzokXTBZMLxq23OkrUAP1YjHMMOIgf1y2DK9NIp6e8fcNhdoelWWpl7sC/T9iX8/2hj7ZVi+JrieJqh1pwg+yzt7OfTmgagWx7gbTzQI/SUFbB9YfkAIUyqK/JVYCv9KKa3mUBoZZfJn4RdLr/5u/uMsB8KGhFvkGkauKv1EW5ZzA84zdlnHrO9hOGhNzhmDc68zkuYp5x+1kQ1Kn34La4j5uMUqhv0s5nKpwAV8AM/vI=
+#   on:
+#     tags: true
+#     branch: master
