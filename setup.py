@@ -4,27 +4,35 @@ from setuptools import setup, find_packages
 import sys
 
 
-with open('README.md') as f:
-    readme = f.read()
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    with open('README.md') as f:
+        readme = f.read()
 
 install_requires = [
+    'boto3',
+    'gnupg>=2.0.2',
     'seria',
     'python-gnupg'
 ]
 
 setup(
     name='figgypy',
-    version='0.2.0',
+    version='0.2.1',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
     author='Herkermer Sherwood',
     author_email='theherk@gmail.com',
     url='https://github.com/theherk/figgypy',
-    download_url='https://github.com/theherk/figgypy/archive/0.2.0.zip',
+    download_url='https://github.com/theherk/figgypy/archive/0.2.1.zip',
     packages=find_packages(),
     platforms=['all'],
     license='MIT',
     install_requires=install_requires,
+    setup_requires=['pytest-runner',],
+    tests_require=['pytest'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: Other/Proprietary License',
