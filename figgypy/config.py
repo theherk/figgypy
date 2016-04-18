@@ -19,7 +19,6 @@ try:
     GPG_IMPORTED = True
 except ImportError:
     logging.info('could not load gnupg, will be unable to unpack secrets')
-    pass
 
 
 class FiggypyError(Exception):
