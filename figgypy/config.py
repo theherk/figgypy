@@ -51,11 +51,8 @@ class Config(object):
         """Get configuration from config file"""
         try:
             with open(f, 'r') as _fo:
-                try:
-                    _seria_in = seria.load(_fo)
-                    _y = _seria_in.dump('yaml')
-                except Exception as err:
-                    raise FiggypyError from err
+                _seria_in = seria.load(_fo)
+                _y = _seria_in.dump('yaml')
         except IOError:
             raise FiggypyError("could not open configuration file")
 
