@@ -176,5 +176,6 @@ def kms_decrypt(cfg, aws_config=None):
         aws = boto3.session.Session(**aws_config)
     except NoRegionError:
         log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        return cfg
     client = aws.client('kms')
     return decrypt(cfg)
