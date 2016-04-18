@@ -58,8 +58,8 @@ class Config(object):
                 try:
                     _seria_in = seria.load(_fo)
                     _y = _seria_in.dump('yaml')
-                except Exception as e:
-                    raise
+                except Exception as err:
+                    raise FiggypyError from err
         except IOError:
             raise FiggypyError("could not open configuration file")
 
