@@ -7,22 +7,24 @@ import boto3
 from botocore.exceptions import ClientError
 
 from figgypy.exceptions import FiggypyError
+from figgypy.utils import env_or_default
 
 log = logging.getLogger('figgypy')
 
-GPG_LOADED = False
+GPG_IMPORTED = False
 try:
     import gnupg
-    GPG_LOADED = True
+    GPG_IMPORTED = True
 except ImportError:
-    log.warning('could not load gnupg, will be unable to unpack secrets')
+    logging.info('could not load gnupg, will be unable to unpack secrets')
 
 
-def gpg_decrypt(cfg):
+def gpg_decrypt(cfg, gpg_config=None):
     """Decrypt GPG objects in configuration.
 
     Args:
         cfg (dict): configuration dictionary
+        gpg_config (dict): gpg configuration
 
     Returns:
         dict: decrypted configuration dictionary
@@ -90,39 +92,29 @@ def gpg_decrypt(cfg):
                 log.debug('Pass on decryption. Only decrypt strings')
         return obj
 
-    if GPG_LOADED:
-        gpgbinary = 'gpg'
-        gnupghome = None
+    if GPG_IMPORTED:
+        if not gpg_config:
+            gpg_config = {}
+            defaults = {'homedir': '~/.gnupg/'}
+            env_fields = {'homedir': 'FIGGYPY_GPG_HOMEDIR',
+                            'binary': 'FIGGYPY_GPG_BINARY',
+                            'keyring': 'FIGGYPY_GPG_KEYRING'}
+            for k, v in env_fields.items():
+                gpg_config[k] = env_or_default(v, defaults[k] if k in defaults else None)
         try:
-            if 'FIGGY_GPG_BINARY' in os.environ:
-                gpgbinary = os.environ['FIGGY_GPG_BINARY']
-            if 'FIGGY_GPG_HOME' in os.environ:
-                gnupghome = os.environ['FIGGY_GPG_HOME']
-            gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
-            return decrypt(cfg)
-        except OSError as err:
-            if len(err.args) == 2:
-                if (err.args[1] == 'The system cannot find the file specified'
-                    or 'No such file or directory' in err.args[1]):
-                    # frobnicate
-                    if not 'FIGGY_GPG_BINARY' in os.environ:
-                        log.error("cannot find gpg executable, path=%s, "
-                                  "try setting GPG_BINARY env variable", gpgbinary)
-                    else:
-                        log.error("cannot find gpg executable, path=%s", gpgbinary)
-            else:
-                log.error("cannot setup gpg, %s", err)
+            gpg = gnupg.GPG(**gpg_config)
+        except OSError:
+            log.exception('failed to configure gpg, will be unable to decrypt secrets')
+        return decrypt(cfg)
     return cfg
 
 
-def kms_decrypt(cfg, aws_access_key_id=None, aws_secret_access_key=None, region_name=None):
+def kms_decrypt(cfg, aws_config=None):
     """Decrypt KMS objects in configuration.
 
     Args:
         cfg (dict): configuration dictionary
-        aws_access_key_id (optional[str]): access key id
-        aws_secret_access_key (optional[str]): secret key
-        region_name (optional[str]): aws region
+        aws_config (dict): aws credentials
 
     Returns:
         dict: decrypted configuration dictionary
@@ -180,9 +172,6 @@ def kms_decrypt(cfg, aws_access_key_id=None, aws_secret_access_key=None, region_
         else:
             pass
         return obj
-    aws_credentials = {'aws_access_key_id': aws_access_key_id,
-                       'aws_secret_access_key': aws_secret_access_key,
-                       'region_name': region_name}
-    aws = boto3.session.Session(**aws_credentials)
+    aws = boto3.session.Session(**aws_config)
     client = aws.client('kms')
     return decrypt(cfg)
