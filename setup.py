@@ -30,6 +30,8 @@ setup(
     platforms=['all'],
     license='MIT',
     install_requires=install_requires,
+    setup_requires=['pytest-runner',],
+    tests_require=['pytest'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: Other/Proprietary License',
