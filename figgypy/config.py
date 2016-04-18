@@ -46,7 +46,8 @@ class Config(object):
         "/etc/"
     ]
 
-    def __init__(self, f):
+    def __init__(self, f, gpg_config=None):
+        self._gpg_config = gpg_config
         self._f = self._get_file(f)
         self._cfg = self._get_cfg(self._f)
 
@@ -63,7 +64,7 @@ class Config(object):
             raise FiggypyError("could not open configuration file")
 
         _cfg = yaml.load(_y)
-        self._post_load_process(_cfg)
+        self._post_load_process(_cfg, self._gpg_config)
         for k, v in _cfg.items():
             setattr(self, k, v)
 
@@ -98,30 +99,22 @@ class Config(object):
                 log.info('Pass on decryption. Only decrypt strings')
         return obj
 
-    def _post_load_process(self, cfg):
-        if gpg_loaded:
-            gpgbinary='gpg'
-            gnupghome=None
+    def _post_load_process(self, cfg, gpg_config=None):
         if GPG_IMPORTED:
+            if not gpg_config:
+                gpg_config = {}
+                defaults = {'homedir': '~/.gnupg/'}
+                env_fields = {'homedir': 'FIGGYPY_GPG_HOMEDIR',
+                              'binary': 'FIGGYPY_GPG_BINARY',
+                              'keyring': 'FIGGYPY_GPG_KEYRING'}
+                for k, v in env_fields.items():
+                    gpg_config[k] = utils.env_or_default(
+                        v, defaults[k] if k in defaults else None)
             try:
-                if 'FIGGY_GPG_BINARY' in os.environ:
-                    gpgbinary = os.environ['FIGGY_GPG_BINARY']
-                if 'FIGGY_GPG_HOME' in os.environ:
-                    gnupghome = os.environ['FIGGY_GPG_HOME']
-                self._gpg = gnupg.GPG(gpgbinary=gpgbinary, gnupghome=gnupghome)
-                return self._decrypt_and_update(cfg)
-            except OSError as e:
-                if len(e.args) == 2:
-                    if (e.args[1] == 'The system cannot find the file specified'
-                        or 'No such file or directory' in e.args[1]):
-                        # frobnicate
-                        if not 'FIGGY_GPG_BINARY' in os.environ:
-                            logger.error(
-                                "cannot find gpg executable, path=%s, try setting GPG_BINARY env variable" % gpgbinary)
-                        else:
-                            logger.error("cannot find gpg executable, path=%s" % gpgbinary)
-                else:
-                    logger.error("cannot setup gpg, %s" % e)
+                self._gpg = gnupg.GPG(**gpg_config)
+            except OSError:
+                log.exception('failed to configure gpg, will be unable to decrypt secrets')
+            return self._decrypt_and_update(cfg)
         return cfg
 
     def _get_file(self, f):
