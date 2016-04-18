@@ -10,6 +10,7 @@ import yaml
 logger = logging.getLogger('figgypy')
 if len(logger.handlers) == 0:
     logger.addHandler(logging.NullHandler())
+from figgypy import utils
 
 gpg_loaded = False
 try:
