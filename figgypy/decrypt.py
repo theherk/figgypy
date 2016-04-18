@@ -16,7 +16,7 @@ try:
     import gnupg
     GPG_IMPORTED = True
 except ImportError:
-    logging.info('could not load gnupg, will be unable to unpack secrets')
+    logging.info('Could not load gnupg. Will be unable to unpack secrets.')
 
 
 def gpg_decrypt(cfg, gpg_config=None):
@@ -104,7 +104,7 @@ def gpg_decrypt(cfg, gpg_config=None):
         try:
             gpg = gnupg.GPG(**gpg_config)
         except OSError:
-            log.exception('failed to configure gpg, will be unable to decrypt secrets')
+            log.exception('Failed to configure gpg. Will be unable to decrypt secrets.')
         return decrypt(cfg)
     return cfg
 
@@ -172,6 +172,9 @@ def kms_decrypt(cfg, aws_config=None):
         else:
             pass
         return obj
-    aws = boto3.session.Session(**aws_config)
+    try:
+        aws = boto3.session.Session(**aws_config)
+    except botocore.exceptions.NoRegionError:
+        log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
     client = aws.client('kms')
     return decrypt(cfg)
