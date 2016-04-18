@@ -17,7 +17,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(c.db['pass'], 'test password')
 
     def test_config_load_without_gpg(self):
-        figgypy.config.GPG_IMPORTED = False
+        figgypy.decrypt.GPG_IMPORTED = False
         c = figgypy.config.Config('tests/resources/test-config.yaml')
         encrypted_password = (
             '-----BEGIN PGP MESSAGE-----\n'
