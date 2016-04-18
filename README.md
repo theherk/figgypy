@@ -103,7 +103,7 @@ This yields object `cfg` with attributes `db` and `log`, each of which are dicti
 
 Secrets
 --------
-It is possible to use gpg to store PGP encrypted secrets in a config file.
+It is possible to use gpg to store PGP and KMS encrypted secrets in a config file.
 
 ### Environment Variables
 
@@ -111,14 +111,19 @@ It is possible to use gpg to store PGP encrypted secrets in a config file.
 + `FIGGYPY_GPG_HOMEDIR` The GPG home. Basically where to look for the keyring. Defaults to `~/.gnupg/`.
 + `FIGGYPY_GPG_KEYRING` The file that houses the keys. Defaults to `pubring.gpg`; may need to be `pubring.kbx`.
 
+AWS configuration uses the standard boto3 configuration, but can also be passed in explicitly. (see below)
+
 ### Passed in parameters
 
 These can also be passed in as arguments when initializing.
 
 ```python
+aws_config = {'aws_access_key_id': aws_access_key_id,
+              'aws_secret_access_key': aws_secret_access_key,
+              'region_name': 'us-east-1'}
 gpg_config = {'homedir': 'noplace/like/home',
               'keyring': 'pubring.kbx'}
-cfg = figgypy.Config('config.yaml', gpg_config=gpg_config)
+cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config)
 ```
 
 ### To encrypt a value
