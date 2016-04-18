@@ -8,6 +8,7 @@ with open('README.md') as f:
     readme = f.read()
 
 install_requires = [
+    'gnupg>=2.0.2',
     'seria',
     'python-gnupg'
 ]
