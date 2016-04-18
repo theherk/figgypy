@@ -12,6 +12,7 @@ except(IOError, ImportError):
         readme = f.read()
 
 install_requires = [
+    'boto3',
     'gnupg>=2.0.2',
     'seria',
     'python-gnupg'
