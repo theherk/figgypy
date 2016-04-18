@@ -7,12 +7,13 @@ import os
 import seria
 import yaml
 
-logger = logging.getLogger('figgypy')
-if len(logger.handlers) == 0:
-    logger.addHandler(logging.NullHandler())
 from figgypy import utils
 
 gpg_loaded = False
+log = logging.getLogger('figgypy')
+if len(log.handlers) == 0:
+    log.addHandler(logging.NullHandler())
+
 try:
     import gnupg
     gpg_loaded = True
@@ -91,11 +92,11 @@ class Config(object):
                         if decrypted.ok:
                             obj = decrypted.data.decode('utf-8')
                         else:
-                            logger.error("gpg error unpacking secrets %s" % decrypted.stderr)
+                            log.error("gpg error unpacking secrets %s" % decrypted.stderr)
                     except Exception as e:
-                            logger.error("error unpacking secrets %s" % e)
+                            log.error("error unpacking secrets %s" % e)
             except TypeError as e:
-                logger.info('Pass on decryption. Only decrypt strings')
+                log.info('Pass on decryption. Only decrypt strings')
         return obj
 
     def _post_load_process(self, cfg):
