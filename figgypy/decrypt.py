@@ -165,7 +165,7 @@ def kms_decrypt(cfg, aws_config=None):
                     if 'AccessDeniedException' in err.args[0]:
                         log.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
                     else:
-                        raise FiggypyError from err
+                        raise
             else:
                 for k, v in obj.items():
                     obj[k] = decrypt(v)
