@@ -13,6 +13,7 @@ except(IOError, ImportError):
 
 install_requires = [
     'boto3',
+    'future',
     'gnupg>=2.0.2',
     'seria',
     'python-gnupg'

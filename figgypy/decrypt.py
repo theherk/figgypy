@@ -1,4 +1,7 @@
 """Decrypt objects in Config."""
+from __future__ import unicode_literals
+from future.utils import bytes_to_native_str as n
+
 import base64
 import logging
 import os
@@ -69,7 +72,7 @@ def gpg_decrypt(cfg, gpg_config=None):
                 try:
                     decrypted = gpg.decrypt(obj['_gpg'])
                     if decrypted.ok:
-                        obj = decrypted.data.decode('utf-8')
+                        obj = n(decrypted.data.decode('utf-8').encode())
                     else:
                         log.error("gpg error unpacking secrets %s", decrypted.stderr)
                 except Exception as err:
@@ -83,7 +86,7 @@ def gpg_decrypt(cfg, gpg_config=None):
                     try:
                         decrypted = gpg.decrypt(obj)
                         if decrypted.ok:
-                            obj = decrypted.data.decode('utf-8')
+                            obj = n(decrypted.data.decode('utf-8').encode())
                         else:
                             log.error("gpg error unpacking secrets %s", decrypted.stderr)
                     except Exception as err:
@@ -160,7 +163,7 @@ def kms_decrypt(cfg, aws_config=None):
             if '_kms' in obj:
                 try:
                     res = client.decrypt(CiphertextBlob=base64.b64decode(obj['_kms'].encode()))
-                    obj = res['Plaintext'].decode('utf-8')
+                    obj = n(res['Plaintext'].decode('utf-8').encode())
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         log.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
