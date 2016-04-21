@@ -1,9 +1,11 @@
+"""Decrypt objects in Config."""
 from __future__ import unicode_literals
 from future.utils import bytes_to_native_str as n
-"""Decrypt objects in Config."""
+
 import base64
 import logging
 import os
+
 import boto3
 from botocore.exceptions import ClientError, NoRegionError
 
