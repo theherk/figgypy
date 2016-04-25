@@ -16,18 +16,19 @@ install_requires = [
     'future',
     'gnupg>=2.0.2',
     'seria',
-    'python-gnupg'
+    'python-gnupg',
+    'pyyaml'
 ]
 
 setup(
     name='figgypy',
-    version='0.2.4',
+    version='0.2.5',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
     author='Herkermer Sherwood',
     author_email='theherk@gmail.com',
     url='https://github.com/theherk/figgypy',
-    download_url='https://github.com/theherk/figgypy/archive/0.2.4.zip',
+    download_url='https://github.com/theherk/figgypy/archive/0.2.5.zip',
     packages=find_packages(),
     platforms=['all'],
     license='MIT',
