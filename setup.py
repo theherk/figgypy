@@ -16,7 +16,8 @@ install_requires = [
     'future',
     'gnupg>=2.0.2',
     'seria',
-    'python-gnupg'
+    'python-gnupg',
+    'pyyaml'
 ]
 
 setup(
