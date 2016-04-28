@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 """Decrypt objects in Config."""
 from __future__ import unicode_literals
 from future.utils import bytes_to_native_str as n
 
-import base64
+from base64 import b64decode
 import logging
 import os
 
@@ -28,6 +29,12 @@ def gpg_decrypt(cfg, gpg_config=None):
     Args:
         cfg (dict): configuration dictionary
         gpg_config (dict): gpg configuration
+            dict of arguments for gpg including:
+                homedir, binary, and keyring (require all if any)
+            example:
+                gpg_config = {'homedir': '~/.gnupg/',
+                              'binary': 'gpg',
+                              'keyring': 'pubring.kbx'}
 
     Returns:
         dict: decrypted configuration dictionary
@@ -118,6 +125,11 @@ def kms_decrypt(cfg, aws_config=None):
     Args:
         cfg (dict): configuration dictionary
         aws_config (dict): aws credentials
+            dict of arguments passed into boto3 session
+            example:
+                aws_creds = {'aws_access_key_id': aws_access_key_id,
+                             'aws_secret_access_key': aws_secret_access_key,
+                             'region_name': 'us-east-1'}
 
     Returns:
         dict: decrypted configuration dictionary
@@ -140,13 +152,8 @@ def kms_decrypt(cfg, aws_config=None):
 
     To get the value to be stored as a KMS encrypted string:
 
-        client = boto3.client('kms')
-        secret = 'You secret password here.'
-        res = client.encrypt(
-            KeyId='your-key-id-or-alias',
-            Plaintext=secret.encode()
-        )
-        encrypted = res['CiphertextBlob']).decode('utf-8')
+        from figgypy.utils import kms_encrypt
+        encrypted = kms_encrypt('your secret', 'your key or alias', optional_aws_config)
     """
     def decrypt(obj):
         """Decrypt the object.
@@ -162,8 +169,8 @@ def kms_decrypt(cfg, aws_config=None):
         elif isinstance(obj, dict):
             if '_kms' in obj:
                 try:
-                    res = client.decrypt(CiphertextBlob=base64.b64decode(obj['_kms'].encode()))
-                    obj = n(res['Plaintext'].decode('utf-8').encode())
+                    res = client.decrypt(CiphertextBlob=b64decode(obj['_kms']))
+                    obj = n(res['Plaintext'])
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         log.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])

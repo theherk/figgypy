@@ -105,33 +105,6 @@ Secrets
 --------
 It is possible to use gpg to store PGP and KMS encrypted secrets in a config file.
 
-### Environment Variables
-
-+ `FIGGYPY_GPG_BINARY` For specifying where GPG is. Defaults to `gpg`.
-+ `FIGGYPY_GPG_HOMEDIR` The GPG home. Basically where to look for the keyring. Defaults to `~/.gnupg/`.
-+ `FIGGYPY_GPG_KEYRING` The file that houses the keys. Defaults to `pubring.gpg`; may need to be `pubring.kbx`.
-
-AWS configuration uses the standard boto3 configuration, but can also be passed in explicitly. (see below)
-
-### Passed in parameters
-
-These can also be passed in as arguments when initializing.
-
-```python
-aws_config = {'aws_access_key_id': aws_access_key_id,
-              'aws_secret_access_key': aws_secret_access_key,
-              'region_name': 'us-east-1'}
-gpg_config = {'homedir': 'noplace/like/home',
-              'keyring': 'pubring.kbx'}
-cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config)
-```
-
-### To encrypt a value
-
-    echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
-
-Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
-
 ```yaml
 db:
   host: db.heck.ya
@@ -167,7 +140,58 @@ If you are using json, you'll need newlines. I achieved the following example wi
 }
 ```
 
+To store a KMS secret, just add the `_kms` key to the configuration file.
+
+```yaml
+db:
+  host: db.heck.ya
+  pass:
+    _kms: your KMS encrypted value
+```
+
+See [below](#kms) for instructions on generating this value.
+
 That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
+
+### Environment Variables
+
++ `FIGGYPY_GPG_BINARY` For specifying where GPG is. Defaults to `gpg`.
++ `FIGGYPY_GPG_HOMEDIR` The GPG home. Basically where to look for the keyring. Defaults to `~/.gnupg/`.
++ `FIGGYPY_GPG_KEYRING` The file that houses the keys. Defaults to `pubring.gpg`; may need to be `pubring.kbx`.
+
+AWS configuration uses the standard boto3 configuration, but can also be passed in explicitly. (see below)
+
+### Passed in parameters
+
+These can also be passed in as arguments when initializing.
+
+```python
+aws_config = {'aws_access_key_id': aws_access_key_id,
+              'aws_secret_access_key': aws_secret_access_key,
+              'region_name': 'us-east-1'}
+gpg_config = {'homedir': 'noplace/like/home',
+              'keyring': 'pubring.kbx'}
+cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config)
+```
+
+### To encrypt a value
+
+#### GPG
+
+    echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
+
+Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
+
+#### KMS
+
+    aws kms encrypt --key-id 'alias/your-key' --plaintext "your secret" --query CiphertextBlob --output text
+
+or the preferred method:
+
+```python
+from figgypy.utils import kms_encrypt
+encrypted = kms_encrypt('your secret', 'key or alias/key-alias', optional_aws_config)
+```
 
 Thanks
 ------

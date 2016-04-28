@@ -20,9 +20,19 @@ class Config(object):
     Args:
         f (str): filename
             see below
-        aws_access_key_id (optional[str]): access key id
-        aws_secret_access_key (optional[str]): secret key
-        region_name (optional[str]): aws region
+        aws_config (dict): aws credentials
+            dict of arguments passed into boto3 session
+            example:
+                aws_creds = {'aws_access_key_id': aws_access_key_id,
+                             'aws_secret_access_key': aws_secret_access_key,
+                             'region_name': 'us-east-1'}
+        gpg_config (dict): gpg configuration
+            dict of arguments for gpg including:
+                homedir, binary, and keyring (require all if any)
+            example:
+                gpg_config = {'homedir': '~/.gnupg/',
+                              'binary': 'gpg',
+                              'keyring': 'pubring.kbx'}
 
     Returns:
         object: configuration object with attribute dictionary for each
