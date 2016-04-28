@@ -140,7 +140,7 @@ If you are using json, you'll need newlines. I achieved the following example wi
 }
 ```
 
-To store a KMS secret, just add the `kms` key to the configuration file.
+To store a KMS secret, just add the `_kms` key to the configuration file.
 
 ```yaml
 db:
@@ -149,7 +149,7 @@ db:
     _kms: your KMS encrypted value
 ```
 
-See [below](#KMS) for instructions on generating this value.
+See [below](#kms) for instructions on generating this value.
 
 That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
 
