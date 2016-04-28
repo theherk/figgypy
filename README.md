@@ -105,6 +105,43 @@ Secrets
 --------
 It is possible to use gpg to store PGP and KMS encrypted secrets in a config file.
 
+```yaml
+db:
+  host: db.heck.ya
+  pass: |
+    -----BEGIN PGP MESSAGE-----
+    Version: GnuPG v2
+
+    hQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU
+    gb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV
+    Ep/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR
+    jmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX
+    zktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y
+    mbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI
+    lbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3
+    3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg
+    yRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq
+    vvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75
+    M9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS
+    SAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t
+    5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==
+    =QuDe
+    -----END PGP MESSAGE-----
+```
+
+If you are using json, you'll need newlines. I achieved the following example with `cat the_above.yaml | seria -j -`.
+
+```json
+{
+    "db": {
+        "host": "db.heck.ya",
+        "pass": "-----BEGIN PGP MESSAGE-----\nVersion: GnuPG v2\n\nhQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU\ngb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV\nEp/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR\njmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX\nzktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y\nmbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI\nlbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3\n3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg\nyRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq\nvvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75\nM9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS\nSAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t\n5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==\n=QuDe\n-----END PGP MESSAGE-----"
+    }
+}
+```
+
+That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
+
 ### Environment Variables
 
 + `FIGGYPY_GPG_BINARY` For specifying where GPG is. Defaults to `gpg`.
@@ -144,43 +181,6 @@ or the preferred method:
 from figgypy.utils import kms_encrypt
 encrypted = kms_encrypt('your secret', 'key or alias/key-alias', optional_aws_config)
 ```
-
-```yaml
-db:
-  host: db.heck.ya
-  pass: |
-    -----BEGIN PGP MESSAGE-----
-    Version: GnuPG v2
-
-    hQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU
-    gb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV
-    Ep/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR
-    jmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX
-    zktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y
-    mbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI
-    lbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3
-    3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg
-    yRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq
-    vvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75
-    M9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS
-    SAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t
-    5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==
-    =QuDe
-    -----END PGP MESSAGE-----
-```
-
-If you are using json, you'll need newlines. I achieved the following example with `cat the_above.yaml | seria -j -`.
-
-```json
-{
-    "db": {
-        "host": "db.heck.ya",
-        "pass": "-----BEGIN PGP MESSAGE-----\nVersion: GnuPG v2\n\nhQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU\ngb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV\nEp/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR\njmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX\nzktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y\nmbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI\nlbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3\n3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg\nyRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq\nvvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75\nM9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS\nSAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t\n5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==\n=QuDe\n-----END PGP MESSAGE-----"
-    }
-}
-```
-
-That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
 
 Thanks
 ------
