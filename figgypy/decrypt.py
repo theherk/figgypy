@@ -162,8 +162,8 @@ def kms_decrypt(cfg, aws_config=None):
         elif isinstance(obj, dict):
             if '_kms' in obj:
                 try:
-                    res = client.decrypt(CiphertextBlob=base64.b64decode(obj['_kms'].encode()))
-                    obj = n(res['Plaintext'].decode('utf-8').encode())
+                    res = client.decrypt(CiphertextBlob=b64decode(obj['_kms']))
+                    obj = n(res['Plaintext'])
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         log.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
