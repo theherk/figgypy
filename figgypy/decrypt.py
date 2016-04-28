@@ -140,13 +140,8 @@ def kms_decrypt(cfg, aws_config=None):
 
     To get the value to be stored as a KMS encrypted string:
 
-        client = boto3.client('kms')
-        secret = 'You secret password here.'
-        res = client.encrypt(
-            KeyId='your-key-id-or-alias',
-            Plaintext=secret.encode()
-        )
-        encrypted = res['CiphertextBlob']).decode('utf-8')
+        from figgypy.utils import kms_encrypt
+        encrypted = kms_encrypt('your secret', 'your key or alias', optional_aws_config)
     """
     def decrypt(obj):
         """Decrypt the object.
