@@ -128,9 +128,22 @@ cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config
 
 ### To encrypt a value
 
+#### GPG
+
     echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
 
 Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
+
+#### KMS
+
+    aws kms encrypt --key-id 'alias/your-key' --plaintext "your secret" --query CiphertextBlob --output text
+
+or the preferred method:
+
+```python
+from figgypy.utils import kms_encrypt
+encrypted = kms_encrypt('your secret', 'key or alias/key-alias', optional_aws_config)
+```
 
 ```yaml
 db:

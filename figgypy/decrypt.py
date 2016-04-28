@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 """Decrypt objects in Config."""
 from __future__ import unicode_literals
 from future.utils import bytes_to_native_str as n
 
-import base64
+from base64 import b64decode
 import logging
 import os
 
@@ -28,6 +29,12 @@ def gpg_decrypt(cfg, gpg_config=None):
     Args:
         cfg (dict): configuration dictionary
         gpg_config (dict): gpg configuration
+            dict of arguments for gpg including:
+                homedir, binary, and keyring (require all if any)
+            example:
+                gpg_config = {'homedir': '~/.gnupg/',
+                              'binary': 'gpg',
+                              'keyring': 'pubring.kbx'}
 
     Returns:
         dict: decrypted configuration dictionary
@@ -118,6 +125,11 @@ def kms_decrypt(cfg, aws_config=None):
     Args:
         cfg (dict): configuration dictionary
         aws_config (dict): aws credentials
+            dict of arguments passed into boto3 session
+            example:
+                aws_creds = {'aws_access_key_id': aws_access_key_id,
+                             'aws_secret_access_key': aws_secret_access_key,
+                             'region_name': 'us-east-1'}
 
     Returns:
         dict: decrypted configuration dictionary
