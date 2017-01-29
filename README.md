@@ -16,6 +16,30 @@ _note_ - figgypy requires python-gnupg and gnupg to decode secrets. It will inst
 Usage
 -----
 
+### figgypy >= 1.0.0
+
+    import figgypy
+    cfg = figgypy.set_config(conf_file)
+    cfg.get('somevalue', optional_default)
+    # or
+    cfg.values['somevalue']
+    # or
+    cfg.values.get('somevalue', optional_default)
+    # or
+    figgypy.get('somevalue', optional_default)
+
+With the new version of figgypy you can use a global configuration as long as you import the full namespace.
+
+You could also do:
+
+    import figgypy
+    figgypy.set_config(conf_file)
+    cfg.get('somevalue')
+
+`set_config` takes all the same parameters as the figgypy.Config object.
+
+### figgypy < 1.0.0 (still supported)
+
     from figgypy import Config
 
     cfg = Config(conf_file)
