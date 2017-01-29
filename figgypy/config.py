@@ -1,7 +1,8 @@
 import logging
 import os
-import seria
 import yaml
+
+import seria
 
 from figgypy.decrypt import (
     gpg_decrypt,
