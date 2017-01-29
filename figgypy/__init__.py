@@ -24,36 +24,39 @@ def get_config():
     return _config
 
 
-def set_config(*args, **kwargs):
+def set_config(config):
     """Set a global config.
 
-    See help(figgypy.config.Config) for full signature.
-
-    For this to work properly you must import the full package namespace.
+    This should work properly whether or not you import the full package namespace.
         # a.py
         import figgypy
-        cfg = figgypy.set_cfg(cfg_file)
-        # cfg is from the file you passed in
+        cfg = figgypy.Config()
+        figgypy.set_config(cfg)
 
         # b.py
         import figgypy
-        cfg = figgypy.get_cfg()
-        # cfg is from the file you passed in still
+        cfg = figgypy.get_config()
+
+        import a
+        import b
+        # same cfg from a
 
     You will get new instances if you import from the namespace. i.e.
-        # a.py
-        from figgypy import set_cfg
-        cfg = set_cfg(cfg_file)
-        # cfg is the file you passed in
+        # c.py
+        from figgypy import Config, set_config
+        cfg = Config()
+        set_config(cfg)
 
-        # b.py
-        from figgypy import get_cfg
-        cfg = get_cfg()
-        # cfg will raise an error since it has not yet been set
+        # d.py
+        from figgypy import get_config
+        cfg = get_config()
+
+        import c
+        import d
+        # same cfg from c
     """
     global _config
-    _config = Config(*args, **kwargs)
-    return _config
+    _config = config
 
 
 def get(*args, **kwargs):
