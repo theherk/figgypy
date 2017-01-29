@@ -61,10 +61,10 @@ class Config(object):
         self._aws_config = aws_config or {}
         self._gpg_config = gpg_config or {}
         self._f = self._get_file(f)
-        self._cfg = self._get_cfg(self._f)
+        self.values = self._load(self._f)
 
-    def _get_cfg(self, f):
-        """Get configuration from config file"""
+    def _load(self, f):
+        """Get values from config file"""
         try:
             with open(f, 'r') as _fo:
                 _seria_in = seria.load(_fo)
@@ -72,15 +72,16 @@ class Config(object):
         except IOError:
             raise FiggypyError("could not open configuration file")
 
-        _cfg = yaml.load(_y)
-        self._post_load_process(_cfg, self._gpg_config)
-        for k, v in _cfg.items():
+        _values = yaml.load(_y)
+        self._post_load_process(_values, self._gpg_config)
+        for k, v in _values.items():
             setattr(self, k, v)
+        return _values
 
-    def _post_load_process(self, cfg, gpg_config=None):
-        gpg_decrypt(cfg, self._gpg_config)
-        kms_decrypt(cfg, self._aws_config)
-        return cfg
+    def _post_load_process(self, obj, gpg_config=None):
+        gpg_decrypt(obj, self._gpg_config)
+        kms_decrypt(obj, self._aws_config)
+        return obj
 
     def _get_file(self, f):
         """Get a config file if possible."""
@@ -93,3 +94,10 @@ class Config(object):
                     return _f
             raise FiggypyError("could not find configuration file {} in dirs {}"
                                .format(f, Config._dirs))
+
+    def get(self, *args, **kwargs):
+        """Get from values dictionary by exposing self.values.get method.
+
+        dict.get() method on Config.values
+        """
+        return self.values.get(*args, **kwargs)
