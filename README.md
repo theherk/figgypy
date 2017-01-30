@@ -24,7 +24,7 @@ Usage
     # or
     cfg.values['somevalue']
     # or
-    cfg.values.get_value('somevalue', optional_default)
+    cfg.values.get('somevalue', optional_default)
     # or
     figgypy.get_value('somevalue', optional_default)
 
