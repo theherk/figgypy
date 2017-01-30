@@ -20,23 +20,24 @@ Usage
 
     import figgypy
     cfg = figgypy.set_config(conf_file)
-    cfg.get('somevalue', optional_default)
+    cfg.get_value('somevalue', optional_default)
     # or
     cfg.values['somevalue']
     # or
-    cfg.values.get('somevalue', optional_default)
+    cfg.values.get_value('somevalue', optional_default)
     # or
-    figgypy.get('somevalue', optional_default)
+    figgypy.get_value('somevalue', optional_default)
 
-With the new version of figgypy you can use a global configuration as long as you import the full namespace.
+With the new version of figgypy you can use a global configuration.
 
-You could also do:
+    # a.py
+    from figgypy import Config, set_config
+    cfg = Config(config_file='config.yaml')
+    figgypy.set_config(cfg)
 
+    # b.py
     import figgypy
-    figgypy.set_config(conf_file)
-    cfg.get('somevalue')
-
-`set_config` takes all the same parameters as the figgypy.Config object.
+    figgypy.get_value('somevalue')
 
 #### Other new features
 
@@ -44,7 +45,7 @@ You can also initialize the Config object without a file. You don't ever even ha
 
     import figgypy
     cfg = figgypy.Config()
-    cfg.set('somedict': {'a': 'aye', 'b': 'bee'})
+    cfg.set_value('somedict', {'a': 'aye', 'b': 'bee'})
 
 You can turn off decryption, though it is on by default:
 
