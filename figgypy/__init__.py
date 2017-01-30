@@ -24,6 +24,17 @@ def get_config():
     return _config
 
 
+def get_value(*args, **kwargs):
+    """Get from config object by exposing Config.get_value method.
+
+    dict.get() method on Config.values
+    """
+    global _config
+    if _config is None:
+        raise ValueError('configuration not set; must run figgypy.set_config first')
+    return _config.get_value(*args, **kwargs)
+
+
 def set_config(config):
     """Set a global config.
 
@@ -59,15 +70,12 @@ def set_config(config):
     _config = config
 
 
-def get(*args, **kwargs):
-    """Get from config object by exposing Config.values.get method.
-
-    dict.get() method on Config.values
-    """
+def set_value(*args, **kwargs):
+    """Set value in the global Config object."""
     global _config
     if _config is None:
         raise ValueError('configuration not set; must run figgypy.set_config first')
-    return _config.get(*args, **kwargs)
+    return _config.set_value(*args, **kwargs)
 
 
-__all__ = ['Config', 'get', 'get_config', 'set_config']
+__all__ = ['Config', 'get_config', 'get_value', 'set_config', 'set_value']
