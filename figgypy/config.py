@@ -169,7 +169,7 @@ class Config(object):
         if self.values:
             self._post_load_process()
 
-    def get(self, *args, **kwargs):
+    def get_value(self, *args, **kwargs):
         """Get from values dictionary by exposing self.values.get method.
 
         dict.get() method on Config.values
@@ -191,7 +191,7 @@ class Config(object):
         if self.values:
             self._post_load_process()
 
-    def set(self, key, value):
+    def set_value(self, key, value):
         """Set value in values dict."""
         self.values[key] = value
 
