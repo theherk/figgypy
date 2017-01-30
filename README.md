@@ -38,10 +38,42 @@ You could also do:
 
 `set_config` takes all the same parameters as the figgypy.Config object.
 
+#### Other new features
+
+You can also initialize the Config object without a file. You don't ever even have to use a file. For example:
+
+    import figgypy
+    cfg = figgypy.Config()
+    cfg.set('somedict': {'a': 'aye', 'b': 'bee'})
+
+You can turn off decryption, though it is on by default:
+
+    import figgypy
+    cfg = figgypy.Config(config_file='config.yaml', decrypt_gpg=False, decrypt_kms=False)
+    cfg.decrypt_kms = True
+    # configuration is reloaded and decrypted
+
+You can run Config.setup to reconstruct the same Config object with new settings. Like this:
+
+    # in shared.py
+    import figgypy
+    cfg = figgypy.Config()
+    figgypy.set_config(cfg)
+
+    # in worker.py
+    import figgypy
+    cfg = get_config()
+    cfg.setup(config_file=file_, kms_decrypt=False, gpg_config=gpgconf)
+
+These changes should also make testing in your applications easier, because in the tests you can reload a different configuration on the same object:
+
+    import figgypy
+    from mylib import totest
+    totest.config_file = 'tests/resources/config.yaml'
+
 ### figgypy < 1.0.0 (still supported)
 
     from figgypy import Config
-
     cfg = Config(conf_file)
 
 Config object can be created with a filename only, relative path, or absolute path.
