@@ -146,7 +146,7 @@ class Config(object):
 
     @config_file.setter
     def config_file(self, config_file):
-        self._load_file(config_file)
+        self._load_file(self._find_file(config_file))
         self._config_file = config_file
         self._post_load_process()
 
