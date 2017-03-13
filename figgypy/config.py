@@ -104,9 +104,9 @@ class Config(object):
         self.values.update(yaml.load(_y))
 
     def _post_load_process(self):
-        if gpg_decrypt:
+        if self.decrypt_gpg:
             gpg_decrypt(self.values, self.gpg_config)
-        if kms_decrypt:
+        if self.decrypt_kms:
             kms_decrypt(self.values, self.aws_config)
         for k, v in self.values.items():
             setattr(self, k, v)
