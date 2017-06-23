@@ -189,3 +189,71 @@ def kms_decrypt(cfg, aws_config=None):
         log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
         return cfg
     return decrypt(cfg)
+
+def ssm_decrypt(cfg, aws_config=None):
+    """Decrypt/get ssm parameter store objects in configuration.
+    Args:
+        cfg (dict): configuration dictionary
+        aws_config (dict): aws credentials
+            dict of arguments passed into boto3 session
+            example:
+                aws_creds = {'aws_access_key_id': aws_access_key_id,
+                             'aws_secret_access_key': aws_secret_access_key,
+                             'region_name': 'us-east-1'}
+
+    Returns:
+        dict: decrypted configuration dictionary
+
+    AWS credentials follow the standard boto flow. Provided values first,
+    followed by environment, and then configuration files on the machine.
+    Ideally, one would set up an IAM role for this machine to authenticate.
+
+    The aim is to find in the dictionary items which have been encrypted/stored
+    with the ssm parameter store.
+
+    A user can create a key "_ssm" in which to store the data. All data
+    at this level will be treated as a parameter name and retrieved from ssm
+    parameter store. For example:
+
+        {'component': {'key': {'_ssm': 'name of parameter to get', 'nothing': 'should go here'}}}
+
+    will transform to:
+
+        {'component': {'key': 'retrieved/decrypted value'}}
+
+
+    """
+    def decrypt(obj):
+        """Decrypt/get the object.
+
+        It is an inner function because we must first configure our ssm
+        client. Then we call this recursively on the object.
+        """
+        if isinstance(obj, list):
+            res_v = []
+            for item in obj:
+                res_v.append(decrypt(item))
+            return res_v
+        elif isinstance(obj, dict):
+            if '_ssm' in obj:
+                try:
+                    res = client.get_parameter(obj['_ssm'], WithDecryption=True)
+                    obj = n(res['Value'])
+                except ClientError as err:
+                    if 'AccessDeniedException' in err.args[0]:
+                        log.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
+                    else:
+                        raise
+            else:
+                for k, v in obj.items():
+                    obj[k] = decrypt(v)
+        else:
+            pass
+        return obj
+    try:
+        aws = boto3.session.Session(**aws_config)
+        client = aws.client('ssm')
+    except NoRegionError:
+        log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        return cfg
+
