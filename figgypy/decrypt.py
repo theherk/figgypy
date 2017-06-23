@@ -237,8 +237,8 @@ def ssm_decrypt(cfg, aws_config=None):
         elif isinstance(obj, dict):
             if '_ssm' in obj:
                 try:
-                    res = client.get_parameter(obj['_ssm'], WithDecryption=True)
-                    obj = n(res['Value'])
+                    res = client.get_parameter(Name=obj['_ssm'], WithDecryption=True)
+                    obj = n(res['Parameter']['Value'])
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         log.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
@@ -255,5 +255,5 @@ def ssm_decrypt(cfg, aws_config=None):
         client = aws.client('ssm')
     except NoRegionError:
         log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
-        return cfg
+    return decrypt(cfg)
 
