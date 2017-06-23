@@ -66,9 +66,10 @@ def ssm_store_parameter(name, value, key=None, aws_config=None):
     client =  aws.client('ssm')
     client.put_parameter(
         Name=name,
-        Description="Figgypy created/updated parameter",
         Value=value,
         KeyId=key,
         Overwrite=True,
+        Description="Figgypy created/updated parameter",
+        Type="SecureString",
     )
     return name
