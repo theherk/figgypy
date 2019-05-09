@@ -6,7 +6,8 @@ import seria
 
 from figgypy.decrypt import (
     gpg_decrypt,
-    kms_decrypt
+    kms_decrypt,
+    ssm_decrypt,
 )
 from figgypy.exceptions import FiggypyError
 
@@ -42,6 +43,10 @@ class Config(object):
         decrypt_kms (optional[bool]): decrypt kms secrets
             see decrypt_kms property for more details
             defaults to True
+        decrypt_ssm (optional[bool]): decrypt/retrieve parameters
+            from ssm parameter store.
+            see decrypt_ssm property for more details
+            defaults to True
 
     Returns:
         object: configuration object with 'values' dictionary
@@ -66,13 +71,14 @@ class Config(object):
     ]
 
     def __init__(self, config_file=None, aws_config=None, gpg_config=None,
-                 decrypt_gpg=True, decrypt_kms=True):
+                 decrypt_gpg=True, decrypt_kms=True, decrypt_ssm=True):
         # Must initialize values first, since other setters may load self.values
         self.values = {}
         self._aws_config = aws_config
         self._gpg_config = gpg_config
         self._decrypt_gpg = decrypt_gpg
         self._decrypt_kms = decrypt_kms
+        self._decrypt_ssm = decrypt_ssm
         self._config_file = None
         # Load the file last so it can rely on the other properties.
         if config_file is not None:
@@ -108,6 +114,8 @@ class Config(object):
             gpg_decrypt(self.values, self.gpg_config)
         if self.decrypt_kms:
             kms_decrypt(self.values, self.aws_config)
+        if self.decrypt_ssm:
+            ssm_decrypt(self.values, self.aws_config)
         for k, v in self.values.items():
             setattr(self, k, v)
 
@@ -170,6 +178,16 @@ class Config(object):
         if self.values:
             self._post_load_process()
 
+    @property
+    def decrypt_ssm(self):
+        return self._decrypt_ssm is not False
+
+    @decrypt_ssm.setter
+    def decrypt_ssm(self, value):
+        self._decrypt_ssm = value is not False
+        if self.values:
+            self._post_load_process()
+
     def get_value(self, *args, **kwargs):
         """Get from values dictionary by exposing self.values.get method.
 
@@ -197,7 +215,7 @@ class Config(object):
         self.values[key] = value
 
     def setup(self, config_file=None, aws_config=None, gpg_config=None,
-              decrypt_gpg=True, decrypt_kms=True):
+              decrypt_gpg=True, decrypt_kms=True, decrypt_ssm=True):
         """Make setup easier by providing a constructor method.
 
         Move to config_file
@@ -221,6 +239,8 @@ class Config(object):
             self.decrypt_kms = decrypt_kms
         if decrypt_gpg is not None:
             self.decrypt_gpg = decrypt_gpg
+        if decrypt_ssm is not None:
+            self.decrypt_ssm = decrypt_ssm
         # Again, load the file last so that it can rely on other properties.
         if config_file is not None:
             self.config_file = config_file
