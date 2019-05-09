@@ -107,7 +107,7 @@ class Config(object):
                 _y = _seria_in.dump('yaml')
         except IOError:
             raise FiggypyError("could not open configuration file")
-        self.values.update(yaml.load(_y))
+        self.values.update(yaml.full_load(_y))
 
     def _post_load_process(self):
         if self.decrypt_gpg:
