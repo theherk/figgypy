@@ -1,7 +1,7 @@
 """figgypy is a simple configuration manager"""
 
 __title__ = 'figgypy'
-__author__ = 'Herkermer Sherwood'
+__author__ = 'Adam Sherwood'
 
 from figgypy.config import Config
 
