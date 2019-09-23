@@ -11,8 +11,10 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(c.number, 1)
 
     def test_config_load_with_gpg(self):
-        os.environ['FIGGYPY_GPG_HOMEDIR'] = 'tests/resources/test-keys'
-        c = figgypy.config.Config('tests/resources/test-config.yaml')
+        c = figgypy.config.Config(
+            config_file='tests/resources/test-config.yaml',
+            gpg_config={'homedir': 'tests/resources/test-keys'}
+        )
         self.assertEqual(c.db['host'], 'db.heck.ya')
         self.assertEqual(c.db['pass'], 'test password')
 
