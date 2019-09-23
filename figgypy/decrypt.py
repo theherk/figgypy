@@ -103,14 +103,6 @@ def gpg_decrypt(cfg, gpg_config=None):
         return obj
 
     if GPG_IMPORTED:
-        if not gpg_config:
-            gpg_config = {}
-            defaults = {'homedir': '~/.gnupg/'}
-            env_fields = {'homedir': 'FIGGYPY_GPG_HOMEDIR',
-                          'binary': 'FIGGYPY_GPG_BINARY',
-                          'keyring': 'FIGGYPY_GPG_KEYRING'}
-            for k, v in env_fields.items():
-                gpg_config[k] = env_or_default(v, defaults[k] if k in defaults else None)
         try:
             gpg = gnupg.GPG(**gpg_config)
         except (OSError, RuntimeError):

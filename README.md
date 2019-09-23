@@ -224,14 +224,6 @@ See [below](#kms) for instructions on generating this value.
 
 That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
 
-### Environment Variables
-
-+ `FIGGYPY_GPG_BINARY` For specifying where GPG is. Defaults to `gpg`.
-+ `FIGGYPY_GPG_HOMEDIR` The GPG home. Basically where to look for the keyring. Defaults to `~/.gnupg/`.
-+ `FIGGYPY_GPG_KEYRING` The file that houses the keys. Defaults to `pubring.gpg`; may need to be `pubring.kbx`.
-
-AWS configuration uses the standard boto3 configuration, but can also be passed in explicitly. (see below)
-
 ### Passed in parameters
 
 These can also be passed in as arguments when initializing.

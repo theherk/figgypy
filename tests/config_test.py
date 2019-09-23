@@ -7,7 +7,6 @@ import figgypy.config
 
 class TestConfig(unittest.TestCase):
     def test_config_pass_on_int(self):
-        os.environ['FIGGYPY_GPG_HOMEDIR']='tests/resources/test-keys'
         c = figgypy.config.Config('tests/resources/test-config.yaml')
         self.assertEqual(c.number, 1)
 
