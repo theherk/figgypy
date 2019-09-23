@@ -252,7 +252,7 @@ Add the resulting armor to your configuration where necessary. If you are using 
 or the preferred method:
 
 ```python
-from figgypy.utils import kms_encrypt
+from figgypy.util import kms_encrypt
 encrypted = kms_encrypt('your secret', 'key or alias/key-alias', optional_aws_config)
 ```
 
