@@ -4,12 +4,8 @@ from setuptools import setup, find_packages
 import sys
 
 
-try:
-    import pypandoc
-    readme = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
-    with open('README.md') as f:
-        readme = f.read()
+with open('README.md') as f:
+    readme = f.read()
 
 install_requires = [
     'boto3',
@@ -25,6 +21,7 @@ setup(
     version='1.2.dev',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
+    long_description_content_type='text/markdown',
     author='Adam Sherwood',
     author_email='theherk@gmail.com',
     url='https://github.com/theherk/figgypy',
