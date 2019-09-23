@@ -1,4 +1,5 @@
-"""figgypy is a simple configuration manager"""
+# -*- coding: utf-8 -*-
+"""figgypy is a simple configuration manager."""
 
 __title__ = 'figgypy'
 __author__ = 'Adam Sherwood'
