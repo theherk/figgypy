@@ -11,10 +11,6 @@ from figgypy.decrypt import (
 )
 from figgypy.exceptions import FiggypyError
 
-log = logging.getLogger('figgypy')
-if len(log.handlers) == 0:
-    log.addHandler(logging.NullHandler())
-
 
 class Config(object):
     """Configuration object
