@@ -11,12 +11,8 @@ Installation
 
     pip install figgypy
 
-_note_ - figgypy requires python-gnupg and gnupg to decode secrets. It will install python-gnupg at install time. If you don't have gnupg on your system by default (it probably is) you'll need to install it. If either of these two are missing, the configuration tool will still work, it just won't decrypt secrets.
-
 Usage
 -----
-
-### figgypy >= 1.0.0
 
 ``` python
 import figgypy
@@ -30,7 +26,27 @@ cfg.values.get('somevalue', optional_default)
 figgypy.get_value('somevalue', optional_default)
 ```
 
-With the new version of figgypy you can use a global configuration.
+Config object can be created with a filename only, relative path, or absolute path.
+If only name or relative path is provided, look in this order:
+
+1. current directory
+2. `~/.config/<file_name>`
+3. `/etc/<file_name>`
+
+It is a good idea to include you `__package__` in the file name.
+For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
+This way it will look for `your_package/config.yaml`,
+`~/.config/your_package/config.yaml`, and `/etc/your_package/config.yaml`.
+
+### Features ###
+
+#### Supports multiple formats ####
+
+The configuration file currently supports json, _xml*_, and yaml.
+
+_* note_ - xml will work, but since it requires having only one root, all of the configuration will be in a dictionary named that root. See examples below.
+
+#### Global configuration (optional) ####
 
 ``` python
 # a.py
@@ -43,9 +59,7 @@ import figgypy
 figgypy.get_value('somevalue')
 ```
 
-#### Other new features
-
-You can also initialize the Config object without a file. You don't ever even have to use a file. For example:
+#### No file needed ####
 
 ``` python
 import figgypy
@@ -53,7 +67,9 @@ cfg = figgypy.Config()
 cfg.set_value('somedict', {'a': 'aye', 'b': 'bee'})
 ```
 
-You can turn off decryption, though it is on by default:
+#### Optional decryption ####
+
+_note_: By default each is configured to run the decryption routine. This can be disabled.
 
 ``` python
 import figgypy
@@ -61,6 +77,8 @@ cfg = figgypy.Config(config_file='config.yaml', decrypt_gpg=False, decrypt_kms=F
 cfg.decrypt_kms = True
 # configuration is reloaded and decrypted
 ```
+
+#### Reconstruct with updated settings ####
 
 You can run Config.setup to reconstruct the same Config object with new settings. Like this:
 
@@ -84,35 +102,10 @@ from mylib import totest
 totest.config_file = 'tests/resources/config.yaml'
 ```
 
-### figgypy < 1.0.0 (still supported)
-
-``` python
-from figgypy import Config
-cfg = Config(conf_file)
-```
-
-Config object can be created with a filename only, relative path, or absolute path.
-If only name or relative path is provided, look in this order:
-
-1. current directory
-2. `~/.config/<file_name>`
-3. `/etc/<file_name>`
-
-It is a good idea to include you `__package__` in the file name.
-For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
-This way it will look for `your_package/config.yaml`,
-`~/.config/your_package/config.yaml`, and `/etc/your_package/config.yaml`.
-
-This will create a `cfg` variable with attributes for each top level item in the configuration file. Each attribute will be a dictionary with the remaining nested structure.
-
-The configuration file currently supports json, _xml*_, and yaml.
-
-_* note_ - xml will work, but since it requires having only one root, all of the configuration will be in a dictionary named that root. See examples below.
-
 Examples
 --------
 
-### json
+### json ###
 
 ```json
 {
@@ -133,7 +126,7 @@ Examples
 
 This yields object `cfg` with attributes `db` and `log`, each of which are dictionaries.
 
-### xml
+### xml ###
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -155,7 +148,7 @@ This yields object `cfg` with attributes `db` and `log`, each of which are dicti
 
 This yields object `cfg` with attribute `config`, which is the complete dictionary.
 
-### yaml
+### yaml ###
 
 ```yaml
 db:
@@ -174,6 +167,7 @@ This yields object `cfg` with attributes `db` and `log`, each of which are dicti
 
 Secrets
 --------
+
 It is possible to use gpg to store PGP and KMS encrypted secrets in a config file.
 
 ```yaml
@@ -224,7 +218,7 @@ See [below](#kms) for instructions on generating this value.
 
 That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
 
-### Passed in parameters
+### Passed in parameters ###
 
 These can also be passed in as arguments when initializing.
 
@@ -237,15 +231,15 @@ gpg_config = {'homedir': 'noplace/like/home',
 cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config)
 ```
 
-### To encrypt a value
+### To encrypt a value ###
 
-#### GPG
+#### GPG ####
 
     echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
 
 Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
 
-#### KMS
+#### KMS ####
 
     aws kms encrypt --key-id 'alias/your-key' --plaintext "your secret" --query CiphertextBlob --output text
 
