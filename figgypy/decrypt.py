@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError, NoRegionError
 
 from figgypy.exceptions import FiggypyError
 
-log = logging.getLogger('figgypy')
+LOG = logging.getLogger(__name__)
 
 GPG_IMPORTED = False
 try:
@@ -21,7 +21,7 @@ try:
     gnupg._parsers.Verify.TRUST_LEVELS["DECRYPTION_COMPLIANCE_MODE"] = 23
     GPG_IMPORTED = True
 except ImportError:
-    logging.info('Could not load gnupg. Will be unable to unpack secrets.')
+    LOG.exception('Could not load gnupg. Will be unable to unpack secrets.')
 
 
 def gpg_decrypt(cfg, gpg_config=None):
@@ -82,9 +82,9 @@ def gpg_decrypt(cfg, gpg_config=None):
                     if decrypted.ok:
                         obj = n(decrypted.data.decode('utf-8').encode())
                     else:
-                        log.error("gpg error unpacking secrets %s", decrypted.stderr)
+                        LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                 except Exception as err:
-                    log.error("error unpacking secrets %s", err)
+                    LOG.error("error unpacking secrets %s", err)
             else:
                 for k, v in obj.items():
                     obj[k] = decrypt(v)
@@ -96,11 +96,11 @@ def gpg_decrypt(cfg, gpg_config=None):
                         if decrypted.ok:
                             obj = n(decrypted.data.decode('utf-8').encode())
                         else:
-                            log.error("gpg error unpacking secrets %s", decrypted.stderr)
+                            LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                     except Exception as err:
-                        log.error("error unpacking secrets %s", err)
+                        LOG.error("error unpacking secrets %s", err)
             except TypeError:
-                log.debug('Pass on decryption. Only decrypt strings')
+                LOG.debug('Pass on decryption. Only decrypt strings')
         return obj
 
     gpg_config = gpg_config if gpg_config is not None else {}
@@ -108,7 +108,7 @@ def gpg_decrypt(cfg, gpg_config=None):
         try:
             gpg = gnupg.GPG(**gpg_config)
         except (OSError, RuntimeError):
-            log.exception('Failed to configure gpg. Will be unable to decrypt secrets.')
+            LOG.exception('Failed to configure gpg. Will be unable to decrypt secrets.')
         return decrypt(cfg)
     return cfg
 
@@ -146,7 +146,7 @@ def kms_decrypt(cfg, aws_config=None):
 
     To get the value to be stored as a KMS encrypted string:
 
-        from figgypy.utils import kms_encrypt
+        from figgypy.util import kms_encrypt
         encrypted = kms_encrypt('your secret', 'your key or alias', optional_aws_config)
     """
     def decrypt(obj):
@@ -167,7 +167,7 @@ def kms_decrypt(cfg, aws_config=None):
                     obj = n(res['Plaintext'])
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
-                        log.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
+                        LOG.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
                     else:
                         raise
             else:
@@ -176,13 +176,16 @@ def kms_decrypt(cfg, aws_config=None):
         else:
             pass
         return obj
+
+    aws_config = aws_config if aws_config is None else {}
     try:
         aws = boto3.session.Session(**aws_config)
         client = aws.client('kms')
     except NoRegionError:
-        log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        LOG.exception('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
         return cfg
     return decrypt(cfg)
+
 
 def ssm_decrypt(cfg, aws_config=None):
     """Decrypt/get ssm parameter store objects in configuration.
@@ -235,7 +238,7 @@ def ssm_decrypt(cfg, aws_config=None):
                     obj = n(res['Parameter']['Value'])
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
-                        log.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
+                        LOG.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
                     else:
                         raise
             else:
@@ -244,10 +247,11 @@ def ssm_decrypt(cfg, aws_config=None):
         else:
             pass
         return obj
+
+    aws_config = aws_config if aws_config is None else {}
     try:
         aws = boto3.session.Session(**aws_config)
         client = aws.client('ssm')
     except NoRegionError:
-        log.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        LOG.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
     return decrypt(cfg)
-
