@@ -11,13 +11,14 @@ import boto3
 from botocore.exceptions import ClientError, NoRegionError
 
 from figgypy.exceptions import FiggypyError
-from figgypy.utils import env_or_default
 
 log = logging.getLogger('figgypy')
 
 GPG_IMPORTED = False
 try:
-    import gnupg
+    from pretty_bad_protocol import gnupg
+    import pretty_bad_protocol._parsers
+    gnupg._parsers.Verify.TRUST_LEVELS["DECRYPTION_COMPLIANCE_MODE"] = 23
     GPG_IMPORTED = True
 except ImportError:
     logging.info('Could not load gnupg. Will be unable to unpack secrets.')
@@ -28,9 +29,9 @@ def gpg_decrypt(cfg, gpg_config=None):
 
     Args:
         cfg (dict): configuration dictionary
-        gpg_config (dict): gpg configuration
+        gpg_config (optional[dict]): gpg configuration
             dict of arguments for gpg including:
-                homedir, binary, and keyring (require all if any)
+                homedir, binary, and keyring
             example:
                 gpg_config = {'homedir': '~/.gnupg/',
                               'binary': 'gpg',
@@ -102,6 +103,7 @@ def gpg_decrypt(cfg, gpg_config=None):
                 log.debug('Pass on decryption. Only decrypt strings')
         return obj
 
+    gpg_config = gpg_config if gpg_config is not None else {}
     if GPG_IMPORTED:
         try:
             gpg = gnupg.GPG(**gpg_config)

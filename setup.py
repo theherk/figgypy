@@ -10,9 +10,8 @@ with open('README.md') as f:
 install_requires = [
     'boto3',
     'future',
-    'gnupg>=2.0.2',
+    'pretty-bad-protocol',
     'seria',
-    'python-gnupg',
     'pyyaml'
 ]
 
