@@ -25,7 +25,7 @@ setup(
     version='1.2.dev',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
-    author='Herkermer Sherwood',
+    author='Adam Sherwood',
     author_email='theherk@gmail.com',
     url='https://github.com/theherk/figgypy',
     download_url='https://github.com/theherk/figgypy/archive/1.2.dev.zip',
