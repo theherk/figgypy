@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import os
 import yaml
@@ -10,10 +11,6 @@ from figgypy.decrypt import (
     ssm_decrypt,
 )
 from figgypy.exceptions import FiggypyError
-
-log = logging.getLogger('figgypy')
-if len(log.handlers) == 0:
-    log.addHandler(logging.NullHandler())
 
 
 class Config(object):

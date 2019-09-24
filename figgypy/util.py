@@ -8,18 +8,6 @@ import os
 import boto3
 
 
-def env_or_default(var, default=None):
-    """Get environment variable or provide default.
-
-    Args:
-        var (str): environment variable to search for
-        default (optional(str)): default to return
-    """
-    if var in os.environ:
-        return os.environ[var]
-    return default
-
-
 def kms_encrypt(value, key, aws_config=None):
     """Encrypt and value with KMS key.
 
@@ -39,12 +27,12 @@ def kms_encrypt(value, key, aws_config=None):
     aws_config = aws_config or {}
     aws = boto3.session.Session(**aws_config)
     client = aws.client('kms')
-    enc_res = client.encrypt(KeyId=key,
-                             Plaintext=value)
+    enc_res = client.encrypt(KeyId=key, Plaintext=value)
     return n(b64encode(enc_res['CiphertextBlob']))
 
+
 def ssm_store_parameter(name, value, key=None, aws_config=None):
-    """Encrypt and value with KMS key.
+    """Store a value in SSM Parameter Store.
 
     Args:
         name (str): name to store value under
@@ -63,23 +51,15 @@ def ssm_store_parameter(name, value, key=None, aws_config=None):
     """
     aws_config = aws_config or {}
     aws = boto3.session.Session(**aws_config)
-    client =  aws.client('ssm')
+    client = aws.client('ssm')
+    params = {
+        Name: name,
+        Value: value,
+        Overwrite: True,
+        Description: "Figgypy created/updated parameter",
+        Type: "SecureString",
+    }
     if key:
-        client.put_parameter(
-            Name=name,
-            Value=value,
-            KeyId=key,
-            Overwrite=True,
-            Description="Figgypy created/updated parameter",
-            Type="SecureString",
-        )
-    else:
-        client.put_parameter(
-            Name=name,
-            Value=value,
-            Overwrite=True,
-            Description="Figgypy created/updated parameter",
-            Type="SecureString",
-        )
-
+        params["KeyId"] = key
+    client.put_parameter(**params)
     return name
