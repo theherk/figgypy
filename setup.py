@@ -17,7 +17,7 @@ install_requires = [
 
 setup(
     name='figgypy',
-    version='1.2.dev',
+    version='1.1.9',
     description='Simple configuration tool. Get config from yaml, json, or xml.',
     long_description=readme,
     long_description_content_type='text/markdown',
