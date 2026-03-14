@@ -1,5 +1,4 @@
 from base64 import b64encode
-import os
 
 import boto3
 
@@ -22,9 +21,9 @@ def kms_encrypt(value, key, aws_config=None):
     """
     aws_config = aws_config or {}
     aws = boto3.session.Session(**aws_config)
-    client = aws.client('kms')
+    client = aws.client("kms")
     enc_res = client.encrypt(KeyId=key, Plaintext=value)
-    return b64encode(enc_res['CiphertextBlob']).decode('utf-8')
+    return b64encode(enc_res["CiphertextBlob"]).decode("utf-8")
 
 
 def ssm_store_parameter(name, value, key=None, aws_config=None):
@@ -47,13 +46,13 @@ def ssm_store_parameter(name, value, key=None, aws_config=None):
     """
     aws_config = aws_config or {}
     aws = boto3.session.Session(**aws_config)
-    client = aws.client('ssm')
+    client = aws.client("ssm")
     params = {
-        'Name': name,
-        'Value': value,
-        'Overwrite': True,
-        'Description': "Figgypy created/updated parameter",
-        'Type': "SecureString",
+        "Name": name,
+        "Value": value,
+        "Overwrite": True,
+        "Description": "Figgypy created/updated parameter",
+        "Type": "SecureString",
     }
     if key:
         params["KeyId"] = key

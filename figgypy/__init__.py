@@ -1,7 +1,7 @@
 """figgypy is a simple configuration manager."""
 
-__title__ = 'figgypy'
-__author__ = 'Adam Sherwood'
+__title__ = "figgypy"
+__author__ = "Adam Sherwood"
 
 from figgypy.config import Config
 
@@ -20,7 +20,7 @@ def get_config():
     """
     global _config
     if _config is None:
-        raise ValueError('configuration not set; run figgypy.set_config first')
+        raise ValueError("configuration not set; run figgypy.set_config first")
     return _config
 
 
@@ -31,7 +31,7 @@ def get_value(*args, **kwargs):
     """
     global _config
     if _config is None:
-        raise ValueError('configuration not set; must run figgypy.set_config first')
+        raise ValueError("configuration not set; must run figgypy.set_config first")
     return _config.get_value(*args, **kwargs)
 
 
@@ -74,8 +74,8 @@ def set_value(*args, **kwargs):
     """Set value in the global Config object."""
     global _config
     if _config is None:
-        raise ValueError('configuration not set; must run figgypy.set_config first')
+        raise ValueError("configuration not set; must run figgypy.set_config first")
     return _config.set_value(*args, **kwargs)
 
 
-__all__ = ['Config', 'get_config', 'get_value', 'set_config', 'set_value']
+__all__ = ["Config", "get_config", "get_value", "set_config", "set_value"]

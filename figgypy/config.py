@@ -1,14 +1,10 @@
 import json
-import logging
 import os
 import xml.etree.ElementTree as ET
+
 import yaml
 
-from figgypy.decrypt import (
-    gpg_decrypt,
-    kms_decrypt,
-    ssm_decrypt,
-)
+from figgypy.decrypt import gpg_decrypt, kms_decrypt, ssm_decrypt
 from figgypy.exceptions import FiggypyError
 
 
@@ -47,7 +43,6 @@ class Config:
     Returns:
         object: configuration object with 'values' dictionary
 
-    move to config_file
     Object can be created with a filename only, relative path, or absolute path.
     If only name or relative path is provided, look in this order:
 
@@ -60,15 +55,22 @@ class Config:
     This way it will look for your_package/config.yaml,
     ~/.config/your_package/config.yaml, and /etc/your_package/config.yaml.
     """
+
     _dirs = [
         os.curdir,
-        os.path.join(os.path.expanduser("~"), '.config'),
-        "/etc/"
+        os.path.join(os.path.expanduser("~"), ".config"),
+        "/etc/",
     ]
 
-    def __init__(self, config_file=None, aws_config=None, gpg_config=None,
-                 decrypt_gpg=True, decrypt_kms=True, decrypt_ssm=True):
-        # Must initialize values first, since other setters may load self.values
+    def __init__(
+        self,
+        config_file=None,
+        aws_config=None,
+        gpg_config=None,
+        decrypt_gpg=True,
+        decrypt_kms=True,
+        decrypt_ssm=True,
+    ):
         self.values = {}
         self._aws_config = aws_config
         self._gpg_config = gpg_config
@@ -76,7 +78,6 @@ class Config:
         self._decrypt_kms = decrypt_kms
         self._decrypt_ssm = decrypt_ssm
         self._config_file = None
-        # Load the file last so it can rely on the other properties.
         if config_file is not None:
             self.config_file = config_file
 
@@ -85,15 +86,11 @@ class Config:
         """Find a config file if possible."""
         if os.path.isabs(f):
             return f
-        else:
-            for d in Config._dirs:
-                _f = os.path.join(d, f)
-                if os.path.isfile(_f):
-                    return _f
-            raise FiggypyError(
-                "could not find configuration file {} in dirs {}"
-                .format(f, Config._dirs)
-            )
+        for d in Config._dirs:
+            _f = os.path.join(d, f)
+            if os.path.isfile(_f):
+                return _f
+        raise FiggypyError(f"could not find configuration file {f} in dirs {Config._dirs}")
 
     @staticmethod
     def _parse_xml_to_dict(element):
@@ -149,8 +146,7 @@ class Config:
     @aws_config.setter
     def aws_config(self, value):
         if not isinstance(value, dict):
-            raise ValueError('aws_config must be a dict')
-        # Further validation for dict contents may be warranted.
+            raise ValueError("aws_config must be a dict")
         self._aws_config = value
         if self.values:
             self._post_load_process()
@@ -225,8 +221,7 @@ class Config:
     @gpg_config.setter
     def gpg_config(self, value):
         if not isinstance(value, dict):
-            raise ValueError('gpg_config must be a dict')
-        # Further validation for dict contents may be warranted.
+            raise ValueError("gpg_config must be a dict")
         self._gpg_config = value
         if self.values:
             self._post_load_process()
@@ -235,11 +230,17 @@ class Config:
         """Set value in values dict."""
         self.values[key] = value
 
-    def setup(self, config_file=None, aws_config=None, gpg_config=None,
-              decrypt_gpg=True, decrypt_kms=True, decrypt_ssm=True):
+    def setup(
+        self,
+        config_file=None,
+        aws_config=None,
+        gpg_config=None,
+        decrypt_gpg=True,
+        decrypt_kms=True,
+        decrypt_ssm=True,
+    ):
         """Make setup easier by providing a constructor method.
 
-        Move to config_file
         File can be located with a filename only, relative path, or absolute path.
         If only name or relative path is provided, look in this order:
 
@@ -262,7 +263,6 @@ class Config:
             self.decrypt_gpg = decrypt_gpg
         if decrypt_ssm is not None:
             self.decrypt_ssm = decrypt_ssm
-        # Again, load the file last so that it can rely on other properties.
         if config_file is not None:
             self.config_file = config_file
         return self

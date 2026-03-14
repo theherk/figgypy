@@ -1,22 +1,20 @@
 """Decrypt objects in Config."""
 
-from base64 import b64decode
 import logging
-import os
+from base64 import b64decode
 
 import boto3
 from botocore.exceptions import ClientError, NoRegionError
-
-from figgypy.exceptions import FiggypyError
 
 LOG = logging.getLogger(__name__)
 
 GPG_IMPORTED = False
 try:
     import gnupg
+
     GPG_IMPORTED = True
 except ImportError:
-    LOG.exception('Could not load gnupg. Will be unable to unpack secrets.')
+    LOG.exception("Could not load gnupg. Will be unable to unpack secrets.")
 
 
 def gpg_decrypt(cfg, gpg_config=None):
@@ -57,6 +55,7 @@ def gpg_decrypt(cfg, gpg_config=None):
 
         {'component': {'key': 'decrypted value'}}
     """
+
     def decrypt(obj):
         """Decrypt the object.
 
@@ -66,16 +65,13 @@ def gpg_decrypt(cfg, gpg_config=None):
         calling this recursively.
         """
         if isinstance(obj, list):
-            res_v = []
-            for item in obj:
-                res_v.append(decrypt(item))
-            return res_v
+            return [decrypt(item) for item in obj]
         elif isinstance(obj, dict):
-            if '_gpg' in obj:
+            if "_gpg" in obj:
                 try:
-                    decrypted = gpg.decrypt(obj['_gpg'])
+                    decrypted = gpg.decrypt(obj["_gpg"])
                     if decrypted.ok:
-                        obj = decrypted.data.decode('utf-8')
+                        obj = decrypted.data.decode("utf-8")
                     else:
                         LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                 except Exception as err:
@@ -85,17 +81,17 @@ def gpg_decrypt(cfg, gpg_config=None):
                     obj[k] = decrypt(v)
         else:
             try:
-                if 'BEGIN PGP' in obj:
+                if "BEGIN PGP" in obj:
                     try:
                         decrypted = gpg.decrypt(obj)
                         if decrypted.ok:
-                            obj = decrypted.data.decode('utf-8')
+                            obj = decrypted.data.decode("utf-8")
                         else:
                             LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                     except Exception as err:
                         LOG.error("error unpacking secrets %s", err)
             except TypeError:
-                LOG.debug('Pass on decryption. Only decrypt strings')
+                LOG.debug("Pass on decryption. Only decrypt strings")
         return obj
 
     gpg_config = gpg_config if gpg_config is not None else {}
@@ -105,7 +101,7 @@ def gpg_decrypt(cfg, gpg_config=None):
         try:
             gpg = gnupg.GPG(**gpg_config)
         except (OSError, RuntimeError):
-            LOG.exception('Failed to configure gpg. Will be unable to decrypt secrets.')
+            LOG.exception("Failed to configure gpg. Will be unable to decrypt secrets.")
         return decrypt(cfg)
     return cfg
 
@@ -146,6 +142,7 @@ def kms_decrypt(cfg, aws_config=None):
         from figgypy.util import kms_encrypt
         encrypted = kms_encrypt('your secret', 'your key or alias', optional_aws_config)
     """
+
     def decrypt(obj):
         """Decrypt the object.
 
@@ -153,33 +150,33 @@ def kms_decrypt(cfg, aws_config=None):
         client. Then we call this recursively on the object.
         """
         if isinstance(obj, list):
-            res_v = []
-            for item in obj:
-                res_v.append(decrypt(item))
-            return res_v
+            return [decrypt(item) for item in obj]
         elif isinstance(obj, dict):
-            if '_kms' in obj:
+            if "_kms" in obj:
                 try:
-                    res = client.decrypt(CiphertextBlob=b64decode(obj['_kms']))
-                    obj = res['Plaintext'].decode('utf-8')
+                    res = client.decrypt(CiphertextBlob=b64decode(obj["_kms"]))
+                    obj = res["Plaintext"].decode("utf-8")
                 except ClientError as err:
-                    if 'AccessDeniedException' in err.args[0]:
-                        LOG.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
+                    if "AccessDeniedException" in err.args[0]:
+                        LOG.warning(
+                            "Unable to decrypt %s. Key does not exist or no access",
+                            obj["_kms"],
+                        )
                     else:
                         raise
             else:
                 for k, v in obj.items():
                     obj[k] = decrypt(v)
-        else:
-            pass
         return obj
 
     aws_config = aws_config if aws_config is not None else {}
     try:
         aws = boto3.session.Session(**aws_config)
-        client = aws.client('kms')
+        client = aws.client("kms")
     except NoRegionError:
-        LOG.exception('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        LOG.exception(
+            "Missing or invalid aws configuration. Will not be able to unpack KMS secrets."
+        )
         return cfg
     return decrypt(cfg)
 
@@ -217,6 +214,7 @@ def ssm_decrypt(cfg, aws_config=None):
 
 
     """
+
     def decrypt(obj):
         """Decrypt/get the object.
 
@@ -224,32 +222,30 @@ def ssm_decrypt(cfg, aws_config=None):
         client. Then we call this recursively on the object.
         """
         if isinstance(obj, list):
-            res_v = []
-            for item in obj:
-                res_v.append(decrypt(item))
-            return res_v
+            return [decrypt(item) for item in obj]
         elif isinstance(obj, dict):
-            if '_ssm' in obj:
+            if "_ssm" in obj:
                 try:
-                    res = client.get_parameter(Name=obj['_ssm'], WithDecryption=True)
-                    obj = res['Parameter']['Value']
+                    res = client.get_parameter(Name=obj["_ssm"], WithDecryption=True)
+                    obj = res["Parameter"]["Value"]
                 except ClientError as err:
-                    if 'AccessDeniedException' in err.args[0]:
-                        LOG.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
+                    if "AccessDeniedException" in err.args[0]:
+                        LOG.warning(
+                            "Unable to decrypt %s. Parameter does not exist or no access",
+                            obj["_ssm"],
+                        )
                     else:
                         raise
             else:
                 for k, v in obj.items():
                     obj[k] = decrypt(v)
-        else:
-            pass
         return obj
 
     aws_config = aws_config if aws_config is not None else {}
     try:
         aws = boto3.session.Session(**aws_config)
-        client = aws.client('ssm')
+        client = aws.client("ssm")
     except NoRegionError:
-        LOG.info('Missing or invalid aws configuration. Will not be able to unpack SSM secrets.')
+        LOG.info("Missing or invalid aws configuration. Will not be able to unpack SSM secrets.")
         return cfg
     return decrypt(cfg)

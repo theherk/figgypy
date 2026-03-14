@@ -1,12 +1,9 @@
 # Created by https://www.gitignore.io/api/python
 
 ### Python ###
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
 
 # Distribution / packaging
@@ -28,8 +25,6 @@ var/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -46,6 +41,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+.pytest_cache/
 
 # Translations
 *.mo
@@ -60,4 +56,13 @@ docs/_build/
 # PyBuilder
 target/
 
-Pipfile*
+# Environments
+.direnv/
+.venv/
+venv/
+
+# Tool caches
+.ruff_cache/
+
+# uv
+uv.lock
