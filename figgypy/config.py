@@ -28,7 +28,7 @@ class Config:
         gpg_config (optional[dict]): gpg configuration
             see gpg_config property for more details
             dict of arguments for gpg including:
-                homedir, binary, and keyring (require all if any)
+                homedir, binary, and keyring
             example:
                 gpg_config = {'homedir': '~/.gnupg/',
                               'binary': 'gpg',
@@ -55,7 +55,7 @@ class Config:
     2. `~/.config/<file_name>`
     3. `/etc/<file_name>`
 
-    It is a good idea to include you __package__ in the file name.
+    It is a good idea to include your __package__ in the file name.
     For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
     This way it will look for your_package/config.yaml,
     ~/.config/your_package/config.yaml, and /etc/your_package/config.yaml.
@@ -166,7 +166,7 @@ class Config:
         2. `~/.config/<file_name>`
         3. `/etc/<file_name>`
 
-        It is a good idea to include you __package__ in the file name.
+        It is a good idea to include your __package__ in the file name.
         For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
         This way it will look for your_package/config.yaml,
         ~/.config/your_package/config.yaml, and /etc/your_package/config.yaml.
@@ -247,7 +247,7 @@ class Config:
         2. `~/.config/<file_name>`
         3. `/etc/<file_name>`
 
-        It is a good idea to include you __package__ in the file name.
+        It is a good idea to include your __package__ in the file name.
         For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
         This way it will look for your_package/config.yaml,
         ~/.config/your_package/config.yaml, and /etc/your_package/config.yaml.
