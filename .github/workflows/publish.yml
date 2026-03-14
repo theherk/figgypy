@@ -1,0 +1,17 @@
+name: Publish
+
+on:
+  push:
+    tags: ["[0-9]*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
