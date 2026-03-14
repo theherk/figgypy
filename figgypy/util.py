@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from future.utils import bytes_to_native_str as n
-
 from base64 import b64encode
 import os
 
@@ -28,7 +24,7 @@ def kms_encrypt(value, key, aws_config=None):
     aws = boto3.session.Session(**aws_config)
     client = aws.client('kms')
     enc_res = client.encrypt(KeyId=key, Plaintext=value)
-    return n(b64encode(enc_res['CiphertextBlob']))
+    return b64encode(enc_res['CiphertextBlob']).decode('utf-8')
 
 
 def ssm_store_parameter(name, value, key=None, aws_config=None):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """figgypy is a simple configuration manager."""
 
 __title__ = 'figgypy'

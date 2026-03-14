@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 import os
 import yaml
@@ -13,7 +12,7 @@ from figgypy.decrypt import (
 from figgypy.exceptions import FiggypyError
 
 
-class Config(object):
+class Config:
     """Configuration object
 
     Args:

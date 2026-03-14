@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 """Decrypt objects in Config."""
-from __future__ import unicode_literals
-from future.utils import bytes_to_native_str as n
 
 from base64 import b64decode
 import logging
@@ -80,7 +77,7 @@ def gpg_decrypt(cfg, gpg_config=None):
                 try:
                     decrypted = gpg.decrypt(obj['_gpg'])
                     if decrypted.ok:
-                        obj = n(decrypted.data.decode('utf-8').encode())
+                        obj = decrypted.data.decode('utf-8')
                     else:
                         LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                 except Exception as err:
@@ -94,7 +91,7 @@ def gpg_decrypt(cfg, gpg_config=None):
                     try:
                         decrypted = gpg.decrypt(obj)
                         if decrypted.ok:
-                            obj = n(decrypted.data.decode('utf-8').encode())
+                            obj = decrypted.data.decode('utf-8')
                         else:
                             LOG.error("gpg error unpacking secrets %s", decrypted.stderr)
                     except Exception as err:
@@ -164,7 +161,7 @@ def kms_decrypt(cfg, aws_config=None):
             if '_kms' in obj:
                 try:
                     res = client.decrypt(CiphertextBlob=b64decode(obj['_kms']))
-                    obj = n(res['Plaintext'])
+                    obj = res['Plaintext'].decode('utf-8')
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         LOG.warning('Unable to decrypt %s. Key does not exist or no access', obj['_kms'])
@@ -235,7 +232,7 @@ def ssm_decrypt(cfg, aws_config=None):
             if '_ssm' in obj:
                 try:
                     res = client.get_parameter(Name=obj['_ssm'], WithDecryption=True)
-                    obj = n(res['Parameter']['Value'])
+                    obj = res['Parameter']['Value']
                 except ClientError as err:
                     if 'AccessDeniedException' in err.args[0]:
                         LOG.warning('Unable to decrypt %s. Parameter does not exist or no access', obj['_ssm'])
