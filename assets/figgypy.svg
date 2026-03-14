@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <g transform="translate(256,256)">
+    <!-- gear ring -->
+    <circle cx="0" cy="0" r="190" fill="#626880"/>
+    <g>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(0)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(30)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(60)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(90)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(120)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(150)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(180)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(210)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(240)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(270)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(300)"/>
+      <circle cx="0" cy="-198" r="20" fill="#303446" transform="rotate(330)"/>
+    </g>
+    <circle cx="0" cy="0" r="156" fill="#303446"/>
+
+    <!-- center: interlocking spiral, like a fig sliced open -->
+    <path d="M 0,-80 C 80,-80 80,0 80,0 C 80,80 0,80 0,0" fill="#ca9ee6"/>
+    <path d="M 0,80 C -80,80 -80,0 -80,0 C -80,-80 0,-80 0,0" fill="#a6d189"/>
+  </g>
+</svg>
