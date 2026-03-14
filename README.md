@@ -1,256 +1,222 @@
-figgypy
-=======
+# figgypy
 
-[![Chat on Gitter](https://badges.gitter.im/theherk/figgypy.svg)](https://gitter.im/theherk/figgypy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/theherk/figgypy.svg)](https://travis-ci.org/theherk/figgypy)
+[![CI](https://github.com/theherk/figgypy/actions/workflows/ci.yml/badge.svg)](https://github.com/theherk/figgypy/actions/workflows/ci.yml)
 
-A simple configuration parser.
+A simple configuration parser with transparent secret decryption via GPG, AWS KMS, and AWS SSM Parameter Store.
 
-Installation
-------------
+Requires Python 3.10+.
 
-    pip install figgypy
+## Installation
 
-Usage
------
-
-``` python
-import figgypy
-cfg = figgypy.set_config(conf_file)
-cfg.get_value('somevalue', optional_default)
-# or
-cfg.values['somevalue']
-# or
-cfg.values.get('somevalue', optional_default)
-# or
-figgypy.get_value('somevalue', optional_default)
+```sh
+pip install figgypy
 ```
 
-Config object can be created with a filename only, relative path, or absolute path.
-If only name or relative path is provided, look in this order:
+Or with [uv](https://docs.astral.sh/uv/):
 
-1. current directory
+```sh
+uv add figgypy
+```
+
+## Usage
+
+```python
+import figgypy
+
+cfg = figgypy.Config("config.yaml")
+
+# Access values as attributes (set from top-level keys).
+cfg.db["host"]
+
+# Or use the values dict directly.
+cfg.values.get("db")
+
+# Or use the get_value helper.
+cfg.get_value("db")
+```
+
+### File Lookup
+
+A `Config` can be created with a filename, relative path, or absolute path. For non-absolute paths, figgypy searches in order:
+
+1. Current directory
 2. `~/.config/<file_name>`
 3. `/etc/<file_name>`
 
-It is a good idea to include you `__package__` in the file name.
-For example, `cfg = Config(os.path.join(__package__, 'config.yaml'))`.
-This way it will look for `your_package/config.yaml`,
-`~/.config/your_package/config.yaml`, and `/etc/your_package/config.yaml`.
+Including your `__package__` in the path is a good practice:
 
-### Features ###
-
-#### Supports multiple formats ####
-
-The configuration file currently supports json, _xml*_, and yaml.
-
-_* note_ - xml will work, but since it requires having only one root, all of the configuration will be in a dictionary named that root. See examples below.
-
-#### Global configuration (optional) ####
-
-``` python
-# a.py
-from figgypy import Config, set_config
-cfg = Config(config_file='config.yaml')
-figgypy.set_config(cfg)
-
-# b.py
-import figgypy
-figgypy.get_value('somevalue')
+```python
+cfg = figgypy.Config(os.path.join(__package__, "config.yaml"))
 ```
 
-#### No file needed ####
+### Supported Formats
 
-``` python
-import figgypy
-cfg = figgypy.Config()
-cfg.set_value('somedict', {'a': 'aye', 'b': 'bee'})
-```
+Configuration files can be YAML, JSON, or XML. The format is determined by file extension (`.yaml`, `.yml`, `.json`, `.xml`). Unrecognized extensions fall back to YAML parsing.
 
-#### Optional decryption ####
-
-_note_: By default each is configured to run the decryption routine. This can be disabled.
-
-``` python
-import figgypy
-cfg = figgypy.Config(config_file='config.yaml', decrypt_gpg=False, decrypt_kms=False)
-cfg.decrypt_kms = True
-# configuration is reloaded and decrypted
-```
-
-#### Reconstruct with updated settings ####
-
-You can run Config.setup to reconstruct the same Config object with new settings. Like this:
-
-``` python
-# in shared.py
-import figgypy
-cfg = figgypy.Config()
-figgypy.set_config(cfg)
-
-# in worker.py
-import figgypy
-cfg = get_config()
-cfg.setup(config_file=file_, kms_decrypt=False, gpg_config=gpgconf)
-```
-
-These changes should also make testing in your applications easier, because in the tests you can reload a different configuration on the same object:
-
-``` python
-import figgypy
-from mylib import totest
-totest.config_file = 'tests/resources/config.yaml'
-```
-
-Examples
---------
-
-### json ###
-
-```json
-{
-    "db": {
-        "url": "mydburl.com",
-        "name": "mydbname",
-        "user": "myusername",
-        "pass": "correcthorsebatterystable"
-    },
-    "log": {
-        "file": "/var/log/cool_project.log",
-        "level": "INFO"
-    }
-}
-```
-
-    cfg = Config('theabove.json')
-
-This yields object `cfg` with attributes `db` and `log`, each of which are dictionaries.
-
-### xml ###
+For XML, the root element becomes a top-level key since XML requires a single root:
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
 <config>
     <db>
-        <url>mydburl.com</url>
-        <name>mydbname</name>
-        <user>myusername</user>
-        <pass>correcthorsebatterystable</pass>
+        <host>db.example.com</host>
     </db>
-    <log>
-        <file>/var/log/cool_project.log</file>
-        <level>INFO</level>
-    </log>
 </config>
 ```
 
-    cfg = Config('theabove.xml')
-
-This yields object `cfg` with attribute `config`, which is the complete dictionary.
-
-### yaml ###
-
-```yaml
-db:
-  url: mydburl.com
-  name: mydbname
-  user: myusername
-  pass: correcthorsebatterystable
-log:
-  file: /var/log/cool_project.log
-  level: INFO
+```python
+cfg = figgypy.Config("config.xml")
+cfg.config["db"]["host"]  # "db.example.com"
 ```
 
-    cfg = Config('theabove.yaml')
+### Global Configuration
 
-This yields object `cfg` with attributes `db` and `log`, each of which are dictionaries. This is the exact same behaviour as json, which makes sense given the close relationship of yaml and json.
+A `Config` instance can be shared globally across modules:
 
-Secrets
---------
+```python
+# app.py
+import figgypy
+cfg = figgypy.Config(config_file="config.yaml")
+figgypy.set_config(cfg)
 
-It is possible to use gpg to store PGP and KMS encrypted secrets in a config file.
+# elsewhere.py
+import figgypy
+figgypy.get_value("db")
+```
+
+### Programmatic Configuration
+
+No file is required. Values can be set directly:
+
+```python
+cfg = figgypy.Config()
+cfg.set_value("db", {"host": "localhost", "port": 5432})
+```
+
+### Reconfiguration
+
+Use `Config.setup` to reconfigure an existing instance with new settings:
+
+```python
+cfg.setup(config_file="other.yaml", decrypt_kms=False, gpg_config=gpg_conf)
+```
+
+## Secrets
+
+Secrets in configuration files are decrypted transparently at load time. All three decryption methods (GPG, KMS, SSM) are enabled by default. Disable any of them at construction:
+
+```python
+cfg = figgypy.Config("config.yaml", decrypt_gpg=False, decrypt_kms=False, decrypt_ssm=False)
+```
+
+Setting a decrypt flag back to `True` triggers reprocessing:
+
+```python
+cfg.decrypt_kms = True
+```
+
+### GPG
+
+PGP-encrypted values are detected automatically when they contain a `BEGIN PGP` block:
 
 ```yaml
 db:
-  host: db.heck.ya
+  host: db.example.com
   pass: |
     -----BEGIN PGP MESSAGE-----
     Version: GnuPG v2
 
-    hQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU
-    gb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV
-    Ep/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR
-    jmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX
-    zktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y
-    mbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI
-    lbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3
-    3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg
-    yRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq
-    vvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75
-    M9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS
-    SAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t
-    5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==
-    =QuDe
+    hQIMAzf92ZrOUZL3ARAAgW...
     -----END PGP MESSAGE-----
 ```
 
-If you are using json, you'll need newlines. I achieved the following example with `cat the_above.yaml | seria -j -`.
-
-```json
-{
-    "db": {
-        "host": "db.heck.ya",
-        "pass": "-----BEGIN PGP MESSAGE-----\nVersion: GnuPG v2\n\nhQIMAzf92ZrOUZL3ARAAgWexav8+pc2lnqISEuQafFZrqYI0pU3xCuMXnFZp+hpU\ngb0LsaExZ136p4ATIinFHuaLt94hFx7gULgqoSigt/2fubnUCsOGedq122xYZdtV\nEp/24WPVQPcMVIP9pDTJTk82A41BQsOrVYorAGjjB13zFizizYHApNTcWKr4/gfR\njmCqAX5qusXB84fXBecCJ886uEQI2v7+Vxnk+fQMqNt3ybd/uLuBLShMSygr6uLX\nzktyeZvP2QqPSWe0OpttdcvD792/SI/CTznsjbMe0wr1L81csEQcj++4o5wJop3Y\nmbQvG/FxeDdRi2aCxh7JK2xdCsrQzXKTNG2QZMwWqatB5Lb6lJ1mNiJQGX2YK+nI\nlbjy5Cp2lHlNxa9QfB+KglueMnH9gDku5YqBDos6rCEuqK/aTDdMx0V7YGYTamZ3\n3Za+OGi+hl/+4WX2gm+bOM2WWrIysiu9k1HMI1/onui/3hr1nClR8rGb4a5qDlpg\nyRrt7LuLRU4vGXpYm05dXlUeI3uT04ur/DwLo32ujnPo3dc8LFegX8N8p1LLS9vq\nvvrvXRnWsgeAvAYFBprbEYcz7sOU04HM9OGcyjYREMs3Ih6H2oBi3GavJ2x0MG75\nM9JSTu/yytD8GCM3s+3RncKuEAxfZIk1Gbdz0pjb+U6G43qq8/vQPKtKuAeqJHDS\nSAER9YkKqbp0y85LbhUWNWPpHQ2zy8WB71TfYE6vBP5qjoxiqP/QGWjT/3jhCY+t\n5k7R6XqvdvbSu1avFlEgApknzn94I+gsWQ==\n=QuDe\n-----END PGP MESSAGE-----"
-    }
-}
-```
-
-To store a KMS secret, just add the `_kms` key to the configuration file.
+Alternatively, use the `_gpg` key to wrap an encrypted value:
 
 ```yaml
 db:
-  host: db.heck.ya
   pass:
-    _kms: your KMS encrypted value
+    _gpg: |
+      -----BEGIN PGP MESSAGE-----
+      ...
+      -----END PGP MESSAGE-----
 ```
 
-See [below](#kms) for instructions on generating this value.
+To encrypt a value:
 
-That's easy, right? Now this value will be decrypted and available just like you had typed in the value in the configuration file.
+```sh
+echo -n "your secret" | gpg --encrypt --armor -r KEY_ID
+```
 
-### Passed in parameters ###
-
-These can also be passed in as arguments when initializing.
+GPG configuration can be passed in:
 
 ```python
-aws_config = {'aws_access_key_id': aws_access_key_id,
-              'aws_secret_access_key': aws_secret_access_key,
-              'region_name': 'us-east-1'}
-gpg_config = {'homedir': 'noplace/like/home',
-              'keyring': 'pubring.kbx'}
-cfg = figgypy.Config('config.yaml', aws_config=aws_config, gpg_config=gpg_config)
+gpg_config = {"homedir": "~/.gnupg/", "binary": "gpg", "keyring": "pubring.kbx"}
+cfg = figgypy.Config("config.yaml", gpg_config=gpg_config)
 ```
 
-### To encrypt a value ###
+### AWS KMS
 
-#### GPG ####
+Use the `_kms` key with a base64-encoded ciphertext blob:
 
-    echo -n "Your super secret password" | gpg --encrypt --armor -r KEY_ID
+```yaml
+db:
+  pass:
+    _kms: AQICAHg...base64...==
+```
 
-Add the resulting armor to your configuration where necessary. If you are using yaml, this is very simple. Here is an example:
+To encrypt a value:
 
-#### KMS ####
+```sh
+aws kms encrypt --key-id 'alias/your-key' --plaintext "your secret" \
+    --query CiphertextBlob --output text
+```
 
-    aws kms encrypt --key-id 'alias/your-key' --plaintext "your secret" --query CiphertextBlob --output text
-
-or the preferred method:
+Or use the Python helper:
 
 ```python
 from figgypy.util import kms_encrypt
-encrypted = kms_encrypt('your secret', 'key or alias/key-alias', optional_aws_config)
+encrypted = kms_encrypt("your secret", "alias/your-key")
 ```
 
-Thanks
-------
+### AWS SSM Parameter Store
 
-This tool uses [Seria](https://github.com/rtluckie/seria) to serialize between supported formats. Seria is a great tool if you want convert json, xml, or yaml to another of the same three formats.
+Use the `_ssm` key with the parameter name:
+
+```yaml
+db:
+  pass:
+    _ssm: /myapp/db/password
+```
+
+Parameters are fetched with decryption enabled (`WithDecryption=True`).
+
+To store a parameter:
+
+```python
+from figgypy.util import ssm_store_parameter
+ssm_store_parameter("/myapp/db/password", "your secret")
+```
+
+### AWS Configuration
+
+AWS credentials follow the standard boto3 resolution order: explicit config, environment variables, then machine configuration (instance profile, config files).
+
+Pass credentials explicitly when needed:
+
+```python
+aws_config = {
+    "aws_access_key_id": "...",
+    "aws_secret_access_key": "...",
+    "region_name": "us-east-1",
+}
+cfg = figgypy.Config("config.yaml", aws_config=aws_config)
+```
+
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+
+```sh
+uv sync
+uv run pytest
+uv run ruff check .
+```
