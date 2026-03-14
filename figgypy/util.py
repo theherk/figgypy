@@ -53,11 +53,11 @@ def ssm_store_parameter(name, value, key=None, aws_config=None):
     aws = boto3.session.Session(**aws_config)
     client = aws.client('ssm')
     params = {
-        Name: name,
-        Value: value,
-        Overwrite: True,
-        Description: "Figgypy created/updated parameter",
-        Type: "SecureString",
+        'Name': name,
+        'Value': value,
+        'Overwrite': True,
+        'Description': "Figgypy created/updated parameter",
+        'Type': "SecureString",
     }
     if key:
         params["KeyId"] = key

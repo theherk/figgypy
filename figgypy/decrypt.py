@@ -177,7 +177,7 @@ def kms_decrypt(cfg, aws_config=None):
             pass
         return obj
 
-    aws_config = aws_config if aws_config is None else {}
+    aws_config = aws_config if aws_config is not None else {}
     try:
         aws = boto3.session.Session(**aws_config)
         client = aws.client('kms')
@@ -248,10 +248,11 @@ def ssm_decrypt(cfg, aws_config=None):
             pass
         return obj
 
-    aws_config = aws_config if aws_config is None else {}
+    aws_config = aws_config if aws_config is not None else {}
     try:
         aws = boto3.session.Session(**aws_config)
         client = aws.client('ssm')
     except NoRegionError:
-        LOG.info('Missing or invalid aws configuration. Will not be able to unpack KMS secrets.')
+        LOG.info('Missing or invalid aws configuration. Will not be able to unpack SSM secrets.')
+        return cfg
     return decrypt(cfg)
