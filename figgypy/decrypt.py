@@ -13,9 +13,7 @@ LOG = logging.getLogger(__name__)
 
 GPG_IMPORTED = False
 try:
-    from pretty_bad_protocol import gnupg
-    import pretty_bad_protocol._parsers
-    gnupg._parsers.Verify.TRUST_LEVELS["DECRYPTION_COMPLIANCE_MODE"] = 23
+    import gnupg
     GPG_IMPORTED = True
 except ImportError:
     LOG.exception('Could not load gnupg. Will be unable to unpack secrets.')
@@ -101,6 +99,8 @@ def gpg_decrypt(cfg, gpg_config=None):
         return obj
 
     gpg_config = gpg_config if gpg_config is not None else {}
+    _key_map = {"homedir": "gnupghome", "binary": "gpgbinary"}
+    gpg_config = {_key_map.get(k, k): v for k, v in gpg_config.items()}
     if GPG_IMPORTED:
         try:
             gpg = gnupg.GPG(**gpg_config)
