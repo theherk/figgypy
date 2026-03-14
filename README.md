@@ -4,7 +4,7 @@
   <img src="assets/figgypy.svg" alt="figgypy" width="200">
 </p>
 
-[![CI](https://github.com/theherk/figgypy/actions/workflows/ci.yml/badge.svg)](https://github.com/theherk/figgypy/actions/workflows/ci.yml)
+[![CI](https://github.com/theherk/figgypy/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/theherk/figgypy/actions/workflows/ci.yml)
 
 A simple configuration parser with transparent secret decryption via GPG, AWS KMS, and AWS SSM Parameter Store.
 
