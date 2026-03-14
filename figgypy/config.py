@@ -1,8 +1,8 @@
+import json
 import logging
 import os
+import xml.etree.ElementTree as ET
 import yaml
-
-import seria
 
 from figgypy.decrypt import (
     gpg_decrypt,
@@ -95,15 +95,40 @@ class Config:
                 .format(f, Config._dirs)
             )
 
+    @staticmethod
+    def _parse_xml_to_dict(element):
+        """Recursively convert an XML element to a dictionary."""
+        result = {}
+        for child in element:
+            child_data = Config._parse_xml_to_dict(child)
+            if child_data:
+                result[child.tag] = child_data
+            else:
+                result[child.tag] = child.text
+        return result
+
     def _load_file(self, f):
         """Get values from config file"""
         try:
-            with open(f, 'r') as _fo:
-                _seria_in = seria.load(_fo)
-                _y = _seria_in.dump('yaml')
+            with open(f, encoding="utf-8") as _fo:
+                content = _fo.read()
         except IOError:
             raise FiggypyError("could not open configuration file")
-        self.values.update(yaml.full_load(_y))
+
+        ext = os.path.splitext(f)[1].lower()
+        try:
+            if ext in (".yaml", ".yml"):
+                data = yaml.full_load(content)
+            elif ext == ".json":
+                data = json.loads(content)
+            elif ext == ".xml":
+                root = ET.fromstring(content)
+                data = {root.tag: Config._parse_xml_to_dict(root)}
+            else:
+                data = yaml.full_load(content)
+        except Exception as err:
+            raise FiggypyError(f"could not parse configuration file: {err}") from err
+        self.values.update(data)
 
     def _post_load_process(self):
         if self.decrypt_gpg:
